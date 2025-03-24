@@ -123,7 +123,7 @@ function SignUp() {
               <div>Already a member ?</div>
               <div
                 className="ml-1 cursor-pointer hover:underline "
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/login")}
               >
                 Login
               </div>
