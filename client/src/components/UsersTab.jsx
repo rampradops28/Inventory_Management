@@ -1,7 +1,12 @@
 import React from "react";
+import UsersTable from "./UsersTable";
 
 function UsersTab() {
-  return <div>UsersTab</div>;
+  return (
+    <div className="min-h-screen">
+      <UsersTable />
+    </div>
+  );
 }
 
 export default UsersTab;
