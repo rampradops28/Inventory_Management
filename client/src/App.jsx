@@ -8,6 +8,8 @@ import Forget_password from "./pages/Forget_password";
 import Reset_password from "./pages/Reset_password";
 import Verify_email from "./pages/Verify_email";
 import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 
 // app component
 import Navbar from "./components/Navbar";
@@ -31,6 +33,7 @@ function AppContent() {
     "/signup",
     "/forget-password",
     "/reset-password",
+    "/dashboard",
   ];
   const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
 
@@ -44,6 +47,8 @@ function AppContent() {
         <Route path="/reset-password" element={<Reset_password />} />
         <Route path="/" element={<Home />} />
         <Route path="/verify-email" element={<Verify_email />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </>
   );
