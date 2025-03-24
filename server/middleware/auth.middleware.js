@@ -35,3 +35,11 @@ export const protectedRoute = async (req, res, next) => {
     return next(errorHandler(401, "Invalid Access Token"));
   }
 };
+
+export const adminRoute = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    return next(errorHandler(401, "UnAuthorized - Not an Admin"));
+  }
+};

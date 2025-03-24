@@ -5,24 +5,29 @@ const bookSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+      trim: true,
     },
     category: {
       type: String,
       required: true,
+      trim: true,
     },
 
     author: {
       type: String,
       required: true,
+      trim: true,
     },
     availableCopies: {
       type: Number,
       required: true,
+      trim: true,
     },
 
     description: {
       type: String,
       required: true,
+      trim: true,
     },
     image: {
       type: String,

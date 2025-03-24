@@ -8,6 +8,7 @@ import { connectDB } from "./lib/db.js";
 
 // routes
 import authRotes from "./routes/auth.route.js";
+import bookRoutes from "./routes/book.route.js";
 
 // load environment variables
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(cookieParser());
 
 //routes
 app.use("/api/auth", authRotes);
+app.use("/api/books", bookRoutes);
 
 const port = process.env.PORT || 3000;
 
