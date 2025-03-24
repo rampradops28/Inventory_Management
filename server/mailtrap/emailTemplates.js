@@ -19,7 +19,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
     <p>Enter this code on the verification page to complete your registration.</p>
     <p>This code will expire in 01 day for security reasons.</p>
     <p>If you didn't create an account with us, please ignore this email.</p>
-    <p>Best regards,<br>UpTrend Team</p>
+    <p>Best regards,<br>Lendify Team</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>This is an automated message, please do not reply to this email.</p>
@@ -46,7 +46,7 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `<!DOCTYPE html>
       <a href="{resetURL}" style="background-color: #2196F3; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
     </div>
     <p>This link will expire in 1 hour for security reasons.</p>
-    <p>Best regards,<br>UpTrend Team</p>
+    <p>Best regards,<br>Lendify Team</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>This is an automated message, please do not reply to this email.</p>
@@ -77,14 +77,52 @@ export const PASSWORD_RESET_SUCCESS_TEMPLATE = `<!DOCTYPE html>
     <p>For security reasons, we recommend that you:</p>
     <ul>
       <li>Use a strong, unique password</li>
-      <li>Enable two-factor authentication if available</li>
+    
       <li>Avoid using the same password across multiple sites</li>
     </ul>
     <p>Thank you for helping us keep your account secure.</p>
-    <p>Best regards,<br>UpTrend Team</p>
+    <p>Best regards,<br>Lendify Team</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>This is an automated message, please do not reply to this email.</p>
   </div>
 </body>
 </html>`;
+
+export const WELCOME_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Lendify</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #2196F3, #1976D2); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Welcome to Lendify!</h1>
+  </div>
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello {name},</p>
+    <p>Thank you for joining UpTrend! We're excited to have you as part of our community.</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="https://lendify.com/account/{userId}" style="background-color: #2196F3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Access Your Account</a>
+    </div>
+    <p>Here's a summary of your account information:</p>
+    <ul style="background-color: #fff; padding: 15px; border-radius: 4px; border-left: 4px solid #2196F3;">
+      <li><strong>Email:</strong> {email}</li>
+      <li><strong>Account Created:</strong> {creationDate}</li>
+    </ul>
+    <p>Getting started is easy:</p>
+    <ol>
+      <li>Complete your profile</li>
+      <li>Explore our Books</li>
+    </ol>
+    <p>If you have any questions, please visit our <a href="{helpCenter}" style="color: #2196F3; text-decoration: none;">Help Center</a> or contact our support team at <a href="mailto:support@uptrend.com" style="color: #2196F3; text-decoration: none;">support@lendify.com</a>.</p>
+    <p>Best regards,<br>The Lendify Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>&copy; 2025 Lendify. All rights reserved.</p>
+  </div>
+</body>
+</html>
+`;
