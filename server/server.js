@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
 // local dependencies
-import { connectDB } from "./lib/db.js";
+//import { connectDB } from "./lib/db.js";
 
 // routes
 import authRotes from "./routes/auth.route.js";
@@ -27,7 +27,7 @@ const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
-  connectDB();
+  //
 });
 
 // error handle

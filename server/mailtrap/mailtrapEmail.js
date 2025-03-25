@@ -29,16 +29,14 @@ export const sendVerificationEmail = async (email, token, next) => {
 // send welcome email
 export const sendWelcomeEmail = async (email, name, creationDate, next) => {
   try {
-    console.log(email, name, creationDate);
     const recipient = [{ email }];
     const response = await mailtrapClient.send({
       from: sender,
       to: recipient,
       subject: "Welcome to our platform",
-      html: WELCOME_EMAIL_TEMPLATE.replace("{email}", email).replace(
-        "{creationDate}",
-        creationDate
-      ),
+      html: WELCOME_EMAIL_TEMPLATE.replace("{email}", email)
+        .replace("{name}", name)
+        .replace("{creationDate}", creationDate),
     });
 
     console.log("welcome email sent", response);

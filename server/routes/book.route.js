@@ -1,5 +1,5 @@
 import express from "express";
-import { protectedRoute, adminRoute } from "../middleware/auth.middleware.js";
+//import { protectedRoute, adminRoute } from "../middleware/auth.middleware.js";
 import {
   createBook,
   deleteBook,
@@ -9,9 +9,9 @@ import {
 
 const router = express.Router();
 
-router.post("/", protectedRoute, adminRoute, createBook);
-router.delete("/:id", protectedRoute, adminRoute, deleteBook);
-router.put("/:id", protectedRoute, adminRoute, updateBook);
-router.get("/", protectedRoute, getBooks);
+//router.post("/", protectedRoute, adminRoute, createBook);
+//router.delete("/:id", protectedRoute, adminRoute, deleteBook);
+//router.put("/:id", protectedRoute, adminRoute, updateBook);
+//router.get("/", protectedRoute, getBooks);
 
 export default router;

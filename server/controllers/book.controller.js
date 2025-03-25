@@ -2,9 +2,6 @@
 import { errorHandler } from "../utils/errorHandler.js";
 import cloudinary from "../lib/cloudinary.js";
 
-// book model
-import Book from "../models/book.model.js";
-
 // admin book controller
 
 // create a book
