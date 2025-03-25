@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router";
 import { ThemeProvider } from "./components/ui/theme-provider";
+import { Toaster } from "react-hot-toast";
 
 // pages
 import Login from "./pages/Login";
@@ -20,6 +21,7 @@ function App() {
       <BrowserRouter>
         <AppContent />
       </BrowserRouter>
+      <Toaster />
     </ThemeProvider>
   );
 }
