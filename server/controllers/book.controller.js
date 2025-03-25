@@ -1,91 +1,126 @@
 // local dependencies
 import { errorHandler } from "../utils/errorHandler.js";
+import db from "../lib/db.js";
+
+// Cloudinary
 import cloudinary from "../lib/cloudinary.js";
-import db from "../db.js";
 
 // Book controller
 
 // Create a book
 export const createBook = async (req, res, next) => {
   try {
-    const { title, category, description, quantity, location, image } = req.body;
+    const { title, category, description, quantity, location, image, author } =
+      req.body;
 
-    // Validate required fields
-    if (!title || !category || !description) {
-      return next(errorHandler(400, "Title, category, and description are required"));
+    if (!title || !category || !description || !author) {
+      return next(
+        errorHandler(
+          400,
+          "Title, category, author, and description are required"
+        )
+      );
     }
 
-    // Validate quantity
     if (isNaN(quantity) || quantity < 0) {
       return next(errorHandler(400, "Quantity must be a non-negative number"));
     }
 
-    let image_url = "https://pngimg.com/d/book_PNG51090.png"; // Default image
-
-    // Upload image to cloudinary if provided
+    let image_url = "";
     if (image) {
-      const uploadResponse = await cloudinary.uploader.upload(image, {
-        folder: "library_books",
-      });
-      image_url = uploadResponse.secure_url;
+      try {
+        const uploadResponse = await cloudinary.uploader.upload(image, {
+          folder: "library_books",
+        });
+        image_url = uploadResponse.secure_url;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
     }
 
-    // Insert book into database
     const [result] = await db.execute(
-      "INSERT INTO books (title, description, category, quantity, location, image_url) VALUES (?, ?, ?, ?, ?, ?)",
-      [title, description, category, quantity || 0, location || "", image_url]
+      "INSERT INTO books (title, description, category, quantity, location, author, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [title, description, category, quantity, location, author, image_url]
     );
+
+    const [createdBook] = await db.execute("SELECT * FROM books WHERE id = ?", [
+      result.insertId,
+    ]);
 
     res.status(201).json({
       success: true,
-      message: "Book created successfully",
-      book: {
-        id: result.insertId,
-        title,
-        description,
-        category,
-        quantity,
-        location,
-        image_url,
-      },
+      book: createdBook[0],
     });
   } catch (error) {
     next(error);
   }
 };
 
-// Get all books
-export const getAllBooks = async (req, res, next) => {
-  try {
-    const [books] = await db.query("SELECT * FROM books");
-    
-    res.status(200).json({
-      success: true,
-      count: books.length,
-      books,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Get book by ID
+// Get books by id
 export const getBookById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    
+
+    if (!id) {
+      return next(errorHandler(400, "Book ID is required"));
+    }
+
     const [books] = await db.execute("SELECT * FROM books WHERE id = ?", [id]);
-    
+
     if (books.length === 0) {
       return next(errorHandler(404, "Book not found"));
     }
-    
+
     res.status(200).json({
       success: true,
       book: books[0],
     });
   } catch (error) {
-    next(error);
+    console.error("Error fetching book by ID:", error);
+    next(errorHandler(500, "Internal Server Error"));
+  }
+};
+
+// Get  books by category or author or title
+export const searchBooks = async (req, res, next) => {
+  try {
+    const { category, title, author } = req.query;
+
+    let query = "SELECT * FROM books WHERE 1=1";
+    const queryParams = [];
+
+    // Add filtering by category if provided
+    if (category) {
+      query += " AND category LIKE ?";
+      queryParams.push(`%${category}%`);
+    }
+
+    // Add filtering by title if provided
+    if (title) {
+      query += " AND title LIKE ?";
+      queryParams.push(`%${title}%`);
+    }
+
+    // Add filtering by author if provided
+    if (author) {
+      query += " AND author LIKE ?";
+      queryParams.push(`%${author}%`);
+    }
+
+    // Execute
+    const [books] = await db.execute(query, queryParams);
+
+    if (books.length === 0) {
+      return next(errorHandler(404, "No books found matching the criteria"));
+    }
+
+    res.status(200).json({
+      books,
+    });
+  } catch (error) {
+    console.error("Error searching books:", error);
+    next(errorHandler(500, "Internal Server Error"));
   }
 };
 
@@ -93,29 +128,41 @@ export const getBookById = async (req, res, next) => {
 export const updateBook = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, category, description, quantity, location, image } = req.body;
-    
-    // Check if book exists
-    const [existingBooks] = await db.execute("SELECT * FROM books WHERE id = ?", [id]);
-    
-    if (existingBooks.length === 0) {
+    const { title, category, description, quantity, location, image, author } =
+      req.body;
+
+    const [bookResult] = await db.execute("SELECT * FROM books WHERE id = ?", [
+      id,
+    ]);
+
+    if (bookResult.length === 0) {
       return next(errorHandler(404, "Book not found"));
     }
-    
-    const existingBook = existingBooks[0];
+
+    const existingBook = bookResult[0];
     let image_url = existingBook.image_url;
-    
-    // Upload new image if provided
+
     if (image) {
-      const uploadResponse = await cloudinary.uploader.upload(image, {
-        folder: "library_books",
-      });
-      image_url = uploadResponse.secure_url;
+      try {
+        // Extract the public ID of the existing image from the URL
+        const publicId = image_url.split("/").pop().split(".")[0];
+
+        // Delete the old image from Cloudinary
+        await cloudinary.uploader.destroy(`library_books/${publicId}`);
+
+        // Upload the new image
+        const uploadResponse = await cloudinary.uploader.upload(image, {
+          folder: "library_books",
+        });
+        image_url = uploadResponse.secure_url;
+      } catch (error) {
+        console.error("Error updating image:", error);
+        return next(errorHandler(500, "Failed to update the book image"));
+      }
     }
-    
-    // Update book in database
+
     await db.execute(
-      "UPDATE books SET title = ?, description = ?, category = ?, quantity = ?, location = ?, image_url = ? WHERE id = ?",
+      "UPDATE books SET title = ?, description = ?, category = ?, quantity = ?, location = ?, image_url = ?, author = ? WHERE id = ?",
       [
         title || existingBook.title,
         description || existingBook.description,
@@ -123,20 +170,22 @@ export const updateBook = async (req, res, next) => {
         quantity !== undefined ? quantity : existingBook.quantity,
         location || existingBook.location,
         image_url,
-        id
+        author || existingBook.author,
+        id,
       ]
     );
-    
-    // Get updated book
-    const [updatedBooks] = await db.execute("SELECT * FROM books WHERE id = ?", [id]);
-    
+
+    const [updatedBookResult] = await db.execute(
+      "SELECT * FROM books WHERE id = ?",
+      [id]
+    );
+
     res.status(200).json({
-      success: true,
-      message: "Book updated successfully",
-      book: updatedBooks[0],
+      book: updatedBookResult[0],
     });
   } catch (error) {
-    next(error);
+    console.error("Error updating book:", error);
+    next(errorHandler(500, "Internal Server Error"));
   }
 };
 
@@ -144,17 +193,26 @@ export const updateBook = async (req, res, next) => {
 export const deleteBook = async (req, res, next) => {
   try {
     const { id } = req.params;
-    
-    // Check if book exists
-    const [books] = await db.execute("SELECT * FROM books WHERE id = ?", [id]);
-    
-    if (books.length === 0) {
+
+    const [book] = await db.execute("SELECT * FROM books WHERE id = ?", [id]);
+
+    if (book.length === 0) {
       return next(errorHandler(404, "Book not found"));
     }
-    
-    // Delete book from database
+
+    if (book.image_url) {
+      try {
+        const publicId = book.image_url.split("/").pop().split(".")[0];
+
+        await cloudinary.uploader.destroy(`library_books/${publicId}`);
+      } catch (error) {
+        console.error("Error deleting image:", error);
+        throw error;
+      }
+    }
+
     await db.execute("DELETE FROM books WHERE id = ?", [id]);
-    
+
     res.status(200).json({
       success: true,
       message: "Book deleted successfully",

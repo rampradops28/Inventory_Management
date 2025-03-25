@@ -1,17 +1,19 @@
 import express from "express";
-//import { protectedRoute, adminRoute } from "../middleware/auth.middleware.js";
+import { protectedRoute, adminRoute } from "../middleware/auth.middleware.js";
 import {
   createBook,
   deleteBook,
   updateBook,
-  getBooks,
+  getBookById,
+  searchBooks,
 } from "../controllers/book.controller.js";
 
 const router = express.Router();
 
-//router.post("/", protectedRoute, adminRoute, createBook);
-//router.delete("/:id", protectedRoute, adminRoute, deleteBook);
-//router.put("/:id", protectedRoute, adminRoute, updateBook);
-//router.get("/", protectedRoute, getBooks);
+router.get("/search/", searchBooks);
+router.post("/", protectedRoute, adminRoute, createBook);
+router.get("/:id", getBookById);
+router.delete("/:id", protectedRoute, adminRoute, deleteBook);
+router.put("/:id", protectedRoute, adminRoute, updateBook);
 
 export default router;
