@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { FaSearch } from "react-icons/fa"; // Import search icon
+import { FaSearch } from "react-icons/fa";
 
 const CategoryBooks = ({ books, categories }) => {
   const { categoryName } = useParams();

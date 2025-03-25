@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { FaSearch } from "react-icons/fa"; // Import search icon
+import { useNavigate } from "react-router";
 
 const BookDetails = () => {
   const [searchTerm, setSearchTerm] = useState("");
