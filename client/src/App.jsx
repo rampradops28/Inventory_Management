@@ -11,7 +11,7 @@ import Verify_email from "./pages/Verify_email";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-
+import BookDetails from "./pages/Book_details";
 // app component
 import Navbar from "./components/Navbar";
 
@@ -51,6 +51,7 @@ function AppContent() {
         <Route path="/verify-email" element={<Verify_email />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/book-details" element={<BookDetails />} />
       </Routes>
     </>
   );
