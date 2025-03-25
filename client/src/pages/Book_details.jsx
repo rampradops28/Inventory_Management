@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FaSearch } from "react-icons/fa"; // Import search icon
 
 const BookDetails = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,11 +42,11 @@ const BookDetails = () => {
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
           Explore our wide range of book categories
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 justify-center  ">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 justify-center">
           {categories.map((category) => (
             <div
               key={category.id}
-              className="border rounded-md p-4 cursor-pointer bg-white dark:bg-gray-700 shadow-md cursor-pointer"
+              className="border rounded-md p-4 cursor-pointer bg-white dark:bg-gray-700 shadow-md"
               onClick={() => handleCategoryClick(category.name)}
             >
               <h3 className="text-lg font-bold">{category.name}</h3>
