@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { FaSearch } from "react-icons/fa"; // Import search icon
 
 const BookDetails = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,29 +28,12 @@ const BookDetails = () => {
     console.log("Searching for:", searchTerm);
   };
 
-  const handleCategoryClick = (categoryId) => {
-    navigate(`/category/${categoryId}`);
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/category/${categoryName}`);
   };
 
   return (
-    <div>
-      <form
-        onSubmit={handleSearchSubmit}
-        className="flex justify-center items-center pt-10 bg-gray-100 dark:bg-gray-800"
-      >
-        <div className="flex items-center border rounded-md overflow-hidden shadow-md w-full max-w-lg bg-white dark:bg-gray-700">
-          <Input
-            type="text"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            placeholder="Search for a book..."
-            className="flex-grow px-3 py-2 outline-none text-black dark:text-white bg-white dark:bg-gray-700"
-          />
-          <Button type="submit" className="bg-blue-500 px-4 py-2 text-white">
-            <FaSearch />
-          </Button>
-        </div>
-      </form>
+    <div className="m-4">
       <div className="mt-10 text-center">
         <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
           Book Categories
@@ -59,12 +41,12 @@ const BookDetails = () => {
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
           Explore our wide range of book categories
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 justify-center  ">
           {categories.map((category) => (
             <div
               key={category.id}
-              className="border rounded-md p-4 cursor-pointer bg-white dark:bg-gray-700"
-              onClick={() => handleCategoryClick(category.id)}
+              className="border rounded-md p-4 cursor-pointer bg-white dark:bg-gray-700 shadow-md cursor-pointer"
+              onClick={() => handleCategoryClick(category.name)}
             >
               <h3 className="text-lg font-bold">{category.name}</h3>
               <p>{category.description}</p>
