@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
-import { ModeToggle } from "./mode-toggle";
+import { Link } from "react-router-dom"; // Correct import
+import { ModeToggle } from "./mode-toggle"; // Ensure this path is correct
 import userPng from "../assets/images/user.png";
 
 function Navbar() {
