@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router";
 import { ThemeProvider } from "./components/ui/theme-provider";
 import { Toaster } from "react-hot-toast";
 

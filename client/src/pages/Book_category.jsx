@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+
 import { useParams, useNavigate } from "react-router-dom";
-import { FaSearch } from "react-icons/fa";
+
+import { useParams } from "react-router";
 
 const books = [
   {
@@ -51,7 +53,7 @@ function BookCategory() {
   };
 
   return (
-    <div className="p-6 text-white bg-gray-900 min-h-screen">
+    <div className="p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold text-center mb-6">
         {categoryName} Books
       </h1>
@@ -62,9 +64,14 @@ function BookCategory() {
             placeholder="Search for a book..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="w-full p-2 pl-4 pr-10 border rounded-md bg-gray-800 text-white focus:outline-none"
+            className="w-full p-2 pl-4 pr-10 border rounded-md 
+              bg-gray-100 dark:bg-gray-700 
+              text-gray-900 dark:text-white
+              border-gray-300 dark:border-gray-600
+              focus:outline-none 
+              focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           />
-          <FaSearch className="absolute right-3 top-3 text-gray-400" />
+          <FaSearch className="absolute right-3 top-3 text-gray-500 dark:text-gray-300" />
         </div>
       </div>
       <div className="flex justify-center gap-4 flex-wrap">
@@ -72,20 +79,23 @@ function BookCategory() {
           filteredBooks.map((book) => (
             <div
               key={book.id}
-              className="bg-gray-800 p-4 rounded-lg shadow-md w-48 text-center cursor-pointer"
-              onClick={() => handleBookClick(book.id)} // Handle book click
-            >
+            className="bg-gray-800 p-4 rounded-lg shadow-md w-48 text-center cursor-pointer"
+           >
               <img
                 src={book.image}
                 alt={book.title}
                 className="w-full h-32 object-cover mb-2 rounded-md"
               />
-              <h2 className="text-lg font-semibold">{book.title}</h2>
-              <p className="text-gray-400">{book.author}</p>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {book.title}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">{book.author}</p>
             </div>
           ))
         ) : (
-          <p className="text-gray-400 text-center">No books found.</p>
+          <p className="text-gray-500 dark:text-gray-400 text-center">
+            No books found.
+          </p>
         )}
       </div>
     </div>

@@ -2,6 +2,7 @@
 import { errorHandler } from "../utils/errorHandler.js";
 import db from "../lib/db.js";
 
+// members fucntions start
 export const createReservations = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -27,7 +28,7 @@ export const createReservations = async (req, res, next) => {
       reservation: createdReservation[0],
     });
   } catch (error) {
-    console.error("Error creating reservation:", error);
+    console.log("Error creating reservation:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
@@ -65,15 +66,15 @@ export const deleteReservation = async (req, res, next) => {
     }
 
     res.status(200).json({
-      success: true,
       message: "Reservation deleted successfully",
     });
   } catch (error) {
-    console.error("Error deleting reservation:", error);
+    console.log("Error deleting reservation:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
 
+// pending and borrowed reservations with borrowed date
 export const getUserReservations = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -105,7 +106,265 @@ export const getUserReservations = async (req, res, next) => {
       reservations: results,
     });
   } catch (error) {
-    console.error("Error fetching user reservations:", error);
+    console.log("Error fetching user reservations:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
+
+// user borrow history with return date and fine (is there any)
+export const getBorrowHistory = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    if (!userId) {
+      return next(errorHandler(400, "User ID is required"));
+    }
+
+    const query = `
+    SELECT bh.id AS borrow_id, b.id AS book_id, b.title, bh.borrowed_date, bh.returned_date, bh.fine
+    FROM borrow_history bh
+    JOIN books b ON bh.book_id = b.id
+    WHERE bh.user_id = ?
+    ORDER BY bh.borrowed_date DESC
+  `;
+
+    const [results] = await db.query(query, [userId]);
+
+    res.status(200).json({
+      borrowHistory: results,
+    });
+  } catch (error) {
+    console.log("Error fetching user borrow history:", error);
+    next(errorHandler(500, "Internal Server Error"));
+  }
+};
+// members functions end
+
+// admin functions
+
+// get specific user borrow history
+export const getUserBorrowHistory = async (req, res, next) => {
+  try {
+    const { user_id } = req.params; // Get user ID from request params
+
+    if (!user_id) {
+      return next(errorHandler(400, "User ID is required"));
+    }
+
+    const query = `
+      SELECT 
+        bh.id AS borrow_id, 
+        b.id AS book_id, 
+        b.title, 
+        bh.borrowed_date, 
+        bh.returned_date, 
+        IFNULL(bh.fine, 0) AS fine
+      FROM borrow_history bh
+      JOIN books b ON bh.book_id = b.id
+      WHERE bh.user_id = ?
+      ORDER BY bh.borrowed_date DESC
+    `;
+
+    const [results] = await db.execute(query, [user_id]);
+    res.status(200).json({ borrowedBooks: results });
+  } catch (error) {
+    console.log("Error fetching user borrow history:", error);
+    next(errorHandler(500, "Database Error"));
+  }
+};
+
+// admin mark reservation as borrowed
+export const markAsBorrowed = async (req, res, next) => {
+  try {
+    const { reservation_id } = req.params;
+
+    if (!reservation_id) {
+      return next(errorHandler(400, "Reservation ID is required"));
+    }
+
+    const updateQuery = `
+      UPDATE reservations 
+      SET status = 'borrowed' 
+      WHERE id = ?
+    `;
+    const [updateResult] = await db.execute(updateQuery, [reservation_id]);
+
+    if (updateResult.affectedRows === 0) {
+      return next(errorHandler(404, "Reservation not found"));
+    }
+
+    // Insert into borrow history
+    const insertQuery = `
+      INSERT INTO borrow_history (user_id, book_id, borrowed_date) 
+      SELECT user_id, book_id, CURDATE() 
+      FROM reservations 
+      WHERE id = ?
+    `;
+    await db.execute(insertQuery, [reservation_id]);
+
+    // Fetch the borrowed book details
+    const selectQuery = `
+      SELECT 
+        bh.id AS borrow_id, 
+        b.id AS book_id, 
+        b.title, 
+        bh.borrowed_date, 
+        bh.returned_date, 
+        IFNULL(bh.fine, 0) AS fine
+      FROM borrow_history bh
+      JOIN books b ON bh.book_id = b.id
+      WHERE bh.user_id = (SELECT user_id FROM reservations WHERE id = ?)
+        AND bh.book_id = (SELECT book_id FROM reservations WHERE id = ?)
+      ORDER BY bh.borrowed_date DESC
+      LIMIT 1
+    `;
+    const [borrowedBook] = await db.execute(selectQuery, [
+      reservation_id,
+      reservation_id,
+    ]);
+
+    res.status(200).json({
+      borrowedBook: borrowedBook[0],
+    });
+  } catch (error) {
+    console.log("Error marking reservation as borrowed:", error);
+    next(errorHandler(500, "Internal Server Error"));
+  }
+};
+
+// get all reservations
+export const getAllReservations = async (req, res, next) => {
+  try {
+    const query = `
+      SELECT 
+        r.id AS reservation_id, 
+        u.id AS user_id, 
+        u.name AS user_name, 
+        u.email, 
+        b.id AS book_id, 
+        b.title AS book_title, 
+        r.reservation_date, 
+        r.status,
+        bh.borrowed_date, 
+        bh.returned_date,
+        IFNULL(bh.fine, 0) AS fine
+      FROM reservations r
+      JOIN users u ON r.user_id = u.id
+      JOIN books b ON r.book_id = b.id
+      LEFT JOIN borrow_history bh ON r.user_id = bh.user_id AND r.book_id = bh.book_id
+      ORDER BY r.reservation_date DESC
+    `;
+
+    const [results] = await db.execute(query);
+
+    res.status(200).json({
+      reservations: results,
+    });
+  } catch (error) {
+    console.log("Error fetching reservations:", error);
+    next(errorHandler(500, "Internal Server Error"));
+  }
+};
+
+// make a reservation as completed
+export const markAsCompleted = async (req, res, next) => {
+  try {
+    const { reservation_id } = req.params;
+
+    if (!reservation_id) {
+      return next(errorHandler(400, "Reservation ID is required"));
+    }
+
+    // Update reservation status to 'completed'
+    const updateReservationQuery = `
+      UPDATE reservations 
+      SET status = 'completed' 
+      WHERE id = ?;
+    `;
+    const [reservationResult] = await db.execute(updateReservationQuery, [
+      reservation_id,
+    ]);
+
+    if (reservationResult.affectedRows === 0) {
+      return next(errorHandler(404, "Reservation not found"));
+    }
+
+    // Update borrow history and set returned date and calculate fine if overdue
+    const updateBorrowHistoryQuery = `
+      UPDATE borrow_history 
+      SET returned_date = CURDATE(), 
+          fine = GREATEST(0, (DATEDIFF(CURDATE(), borrowed_date) - 7) * 20)
+      WHERE book_id = (SELECT book_id FROM reservations WHERE id = ?)
+        AND user_id = (SELECT user_id FROM reservations WHERE id = ?)
+        AND returned_date IS NULL;
+    `;
+    await db.execute(updateBorrowHistoryQuery, [
+      reservation_id,
+      reservation_id,
+    ]);
+
+    // Fetch updated reservation details
+    const getUpdatedReservationQuery = `
+      SELECT 
+        r.id AS reservation_id, 
+        u.id AS user_id, 
+        u.name AS user_name, 
+        u.email, 
+        b.id AS book_id, 
+        b.title AS book_title, 
+        r.reservation_date, 
+        r.status,
+        bh.borrowed_date, 
+        bh.returned_date,
+        IFNULL(bh.fine, 0) AS fine
+      FROM reservations r
+      JOIN users u ON r.user_id = u.id
+      JOIN books b ON r.book_id = b.id
+      LEFT JOIN borrow_history bh ON r.user_id = bh.user_id AND r.book_id = bh.book_id
+      WHERE r.id = ?;
+    `;
+    const [updatedReservation] = await db.execute(getUpdatedReservationQuery, [
+      reservation_id,
+    ]);
+
+    res.status(200).json({
+      reservation: updatedReservation[0],
+    });
+  } catch (error) {
+    console.log("Error marking reservation as completed:", error);
+    next(errorHandler(500, "Internal Server Error"));
+  }
+};
+
+// get all borrowed books
+export const getBorrowedBooks = async (req, res, next) => {
+  try {
+    const query = `
+      SELECT 
+        bh.id AS borrow_id, 
+        u.id AS user_id, 
+        u.name AS user_name, 
+        u.email, 
+        u.contact, 
+        b.id AS book_id, 
+        b.title, 
+        bh.borrowed_date
+      FROM borrow_history bh
+      JOIN users u ON bh.user_id = u.id
+      JOIN books b ON bh.book_id = b.id
+      WHERE bh.returned_date IS NULL
+      ORDER BY bh.borrowed_date ASC
+    `;
+
+    const [results] = await db.execute(query);
+
+    res.status(200).json({
+      borrowedBooks: results,
+    });
+  } catch (error) {
+    console.log("Error fetching borrowed books:", error);
+    next(errorHandler(500, "Internal Server Error"));
+  }
+};
+
+// admin functions end

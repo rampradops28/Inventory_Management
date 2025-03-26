@@ -189,7 +189,7 @@ export const login = async (req, res, next) => {
 
     res.status(200).json({ user: userWithoutPassword });
   } catch (error) {
-    console.error("Error in login:", error);
+    console.log("Error in login:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
@@ -266,7 +266,7 @@ export const forgotPassword = async (req, res, next) => {
 
     res.status(200).json({ message: "Password reset email sent" });
   } catch (error) {
-    console.error("Error in forgotPassword:", error);
+    console.log("Error in forgotPassword:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
@@ -301,7 +301,7 @@ export const resetPassword = async (req, res, next) => {
 
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
-    console.error("Error in resetPassword:", error);
+    console.log("Error in resetPassword:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
@@ -321,7 +321,7 @@ export const getProfile = async (req, res, next) => {
 
     res.status(200).json({ user: result[0] });
   } catch (error) {
-    console.error("Error fetching user profile:", error);
+    console.log("Error fetching user profile:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
