@@ -24,9 +24,8 @@ export const protectedRoute = async (req, res, next) => {
         return next(errorHandler(404, "User not found"));
       }
 
-      console.log(results[0]);
-
       req.user = results[0];
+      console.log("req.user:", req.user);
       next();
     } catch (error) {
       if (error.name === "TokenExpiredError") {
@@ -41,6 +40,7 @@ export const protectedRoute = async (req, res, next) => {
 };
 
 export const adminRoute = (req, res, next) => {
+  console.log("User:", req.user);
   if (req.user && req.user.role === "admin") {
     next();
   } else {
