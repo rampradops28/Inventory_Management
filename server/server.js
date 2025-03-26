@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 // routes
 import authRotes from "./routes/auth.route.js";
 import bookRoutes from "./routes/book.route.js";
+import reservationRoutes from "./routes/reservation.route.js";
 
 // load environment variables
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(cookieParser());
 //routes
 app.use("/api/auth", authRotes);
 app.use("/api/books", bookRoutes);
+app.use("/api/reservations", reservationRoutes);
 
 const port = process.env.PORT || 3000;
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 const BookDetails = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,7 +27,7 @@ const BookDetails = () => {
   };
 
   const handleCategoryClick = (categoryName) => {
-    navigate(`/category/${categoryName}`);
+    navigate(`/book-category/${categoryName}`);
   };
 
   return (
