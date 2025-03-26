@@ -13,9 +13,9 @@ import { useUserStore } from "./stores/useUserStore";
 // pages import
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import Forget_password from "./pages/Forget_password";
-import Reset_password from "./pages/Reset_password";
-import Verify_email from "./pages/Verify_email";
+import ForgetPassword from "./pages/Forget_password";
+import ResetPassword from "./pages/Reset_password";
+import VerifyEmail from "./pages/Verify_email";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -24,7 +24,6 @@ import About from "./pages/About";
 import BookDetails from "./pages/Book_details";
 import BookCategory from "./pages/Book_category";
 import BookView from "./pages/Book_view";
-
 
 // app components
 import Navbar from "./components/Navbar";
@@ -56,33 +55,15 @@ function AppContent() {
   const location = useLocation();
   const { user } = useUserStore();
 
-  const hideNavbarRoutes = [
+  const hideNavbarFooterRoutes = [
     "/verify-email",
     "/login",
     "/signup",
     "/forget-password",
     "/reset-password",
-    "/reset-password/:token",
-    "*",
   ];
 
-  const shouldHideNavbar = hideNavbarRoutes.some(
-    (route) =>
-      route === location.pathname ||
-      (route.includes(":") && location.pathname.startsWith(route.split(":")[0]))
-  );
-
-  const hideFooterRoutes = [
-    "/verify-email",
-    "/login",
-    "/signup",
-    "/forget-password",
-    "/reset-password",
-    "/reset-password/:token",
-    "*",
-  ];
-
-  const shouldHideFooter = hideFooterRoutes.some(
+  const shouldHideNavbarFooter = hideNavbarFooterRoutes.some(
     (route) =>
       route === location.pathname ||
       (route.includes(":") && location.pathname.startsWith(route.split(":")[0]))
@@ -90,21 +71,7 @@ function AppContent() {
 
   return (
     <div className="flex flex-col min-h-screen dark:bg-gray-800 transition-colors duration-300">
-      {!shouldHideNavbar && <Navbar />}
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/forget-password" element={<Forget_password />} />
-        <Route path="/reset-password" element={<Reset_password />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/verify-email" element={<Verify_email />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/about" element={<About />} />
-      </Routes>
-    </>
-
+      {!shouldHideNavbarFooter && <Navbar />}
       <main className="flex-grow">
         <Routes>
           {/* Authentication Routes */}
@@ -118,17 +85,19 @@ function AppContent() {
           />
           <Route
             path="/forget-password"
-            element={!user ? <Forget_password /> : <Navigate to="/" replace />}
+            element={!user ? <ForgetPassword /> : <Navigate to="/" replace />}
           />
           <Route
             path="/reset-password/:token"
-            element={!user ? <Reset_password /> : <Navigate to="/" replace />}
+            element={!user ? <ResetPassword /> : <Navigate to="/" replace />}
           />
 
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/verify-email" element={<Verify_email />} />
-          <Route path="/book-category" element={<BookDetails />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/book-details" element={<BookDetails />} />
           <Route
             path="/book-category/:categoryName"
             element={<BookCategory />}
@@ -151,12 +120,19 @@ function AppContent() {
             element={user ? <Profile /> : <Navigate to="/login" replace />}
           />
 
-          <Route path="*" element={<h1>Not Found</h1>} />
+          {/* 404 Route */}
+          <Route
+            path="*"
+            element={
+              <h1 className="text-center text-2xl text-red-500">
+                404 - Page Not Found
+              </h1>
+            }
+          />
         </Routes>
       </main>
-      {!shouldHideFooter && <Footer />}
+      {!shouldHideNavbarFooter && <Footer />}
     </div>
-
   );
 }
 
