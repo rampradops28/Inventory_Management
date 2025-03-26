@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 
 const books = [
@@ -9,6 +9,8 @@ const books = [
     author: "Margaret Mitchell",
     category: "Fiction",
     image: "/images/fiction.png",
+    description:
+      "A historical novel set in the American South during the Civil War.",
   },
   {
     id: 2,
@@ -16,6 +18,7 @@ const books = [
     author: "Khaled Hosseini",
     category: "Fiction",
     image: "/assets/images/fiction2.png",
+    description: "A story of friendship and redemption set in Afghanistan.",
   },
   {
     id: 3,
@@ -23,12 +26,15 @@ const books = [
     author: "Jon Krakauer",
     category: "Non-Fiction",
     image: "/assets/images/non-fiction.png",
+    description:
+      "The true story of Christopher McCandless and his journey into the Alaskan wilderness.",
   },
 ];
 
 function BookCategory() {
   const { categoryName } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -39,6 +45,10 @@ function BookCategory() {
       book.category.toLowerCase() === categoryName.toLowerCase() &&
       book.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleBookClick = (bookId) => {
+    navigate(`/book/${bookId}`); // Navigate to the BookView page with the book ID
+  };
 
   return (
     <div className="p-6 text-white bg-gray-900 min-h-screen">
@@ -62,7 +72,8 @@ function BookCategory() {
           filteredBooks.map((book) => (
             <div
               key={book.id}
-              className="bg-gray-800 p-4 rounded-lg shadow-md w-48 text-center"
+              className="bg-gray-800 p-4 rounded-lg shadow-md w-48 text-center cursor-pointer"
+              onClick={() => handleBookClick(book.id)} // Handle book click
             >
               <img
                 src={book.image}
