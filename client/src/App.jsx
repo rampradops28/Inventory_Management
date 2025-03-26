@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import BookDetails from "./pages/Book_details";
 import BookCategory from "./pages/Book_category"; // Corrected import
+import BookView from "./pages/Book_view"; // Corrected import
 
 // app component
 import Navbar from "./components/Navbar";
@@ -55,11 +56,8 @@ function AppContent() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/book-details" element={<BookDetails />} />
-        <Route
-          path="/book-category/:categoryName"
-          element={<BookCategory />}
-        />{" "}
-        {/* Dynamic route */}
+        <Route path="/book-category/:categoryName" element={<BookCategory />} />
+        <Route path="/book/:bookId" element={<BookView />} />
       </Routes>
     </>
   );
