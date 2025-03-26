@@ -1,9 +1,10 @@
 import React from "react";
-import BookCard from "../components/PopularBooks"; // Importing BookCard component
+import BookCard from "../components/PopularBooks";
+import Categories from "../components/Categories";
 
 function Home() {
   return (
-    <div>
+    <div className="container mx-auto px-4 py-8">
       {/* Hero section */}
       <div className="bg-blue-50 rounded-lg shadow-md p-8 mb-8">
         <div className="max-w-3xl mx-auto text-center">
@@ -27,6 +28,9 @@ function Home() {
 
       {/* Popular books section */}
       <BookCard />
+
+      {/* Categories section */}
+      <Categories />
     </div>
   );
 }
