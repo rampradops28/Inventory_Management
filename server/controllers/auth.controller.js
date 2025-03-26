@@ -11,9 +11,8 @@ import {
   sendPasswordResetRequestEmail,
   sendPasswordResetSuccessEmail,
 } from "../mailtrap/mailtrapEmail.js";
-
-// user model
-import User from "../models/user.model.js";
+import db from "../lib/db.js";
+import bcrypt from "bcryptjs";
 
 dotenv.config();
 
@@ -76,36 +75,50 @@ export const register = async (req, res, next) => {
     if (!email || !password)
       return next(errorHandler(400, "Email and Password are required"));
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return next(errorHandler(400, "User already exists"));
+    const [existingUser] = await db.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
+    if (existingUser.length > 0)
+      return next(errorHandler(400, "User already exists"));
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const token = generateVerificationToken();
     const name = email.split("@")[0];
-    const user = new User({
-      email,
-      name,
-      password,
-      verificationToken: token,
-      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 01 day
-    });
 
-    await user.save();
-    if (!user) return next(errorHandler(500, "Internal Server Error"));
+    // Insert the new user into the database
+    const [result] = await db.query(
+      "INSERT INTO users (email, name, password_hash, verification_token, verification_token_expires_at) VALUES (?, ?, ?, ?, ?)",
+      [
+        email,
+        name,
+        hashedPassword,
+        token,
+        new Date(Date.now() + 24 * 60 * 60 * 1000),
+      ]
+    );
 
-    const { accessToken, refreshToken } = generateTokens(user._id);
-    storeRefreshToken(user._id, refreshToken, next);
-    setCookies(res, accessToken, refreshToken, next);
+    // Get the ID of the newly inserted user
+    const userId = result.insertId;
+
+    // Fetch the created user from the database, excluding the password
+    const [createdUser] = await db.query(
+      "SELECT id, email, name, is_verified, role, address, contact, created_at,image_url FROM users WHERE id = ?",
+      [userId]
+    );
+
+    const { accessToken, refreshToken } = generateTokens(userId);
+
+    await storeRefreshToken(userId, refreshToken, next);
+
+    setCookies(res, accessToken, refreshToken);
+
     await sendVerificationEmail(email, token, next);
-    res.status(201).json({
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      avatar: user.avatar,
-      isVerified: user.isVerified,
-    });
+
+    res.status(201).json({ user: createdUser[0] });
   } catch (error) {
-    console.log("error in signup", error);
+    console.log(error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
@@ -115,32 +128,34 @@ export const verifyEmail = async (req, res, next) => {
     const { code } = req.body;
     if (!code) return next(errorHandler(400, "Verification code is required"));
 
-    const user = await User.findOne({
-      verificationToken: code,
-      verificationTokenExpiresAt: { $gt: Date.now() },
-    });
+    const [user] = await db.query(
+      "SELECT id, email, name, is_verified, role, address, contact, created_at FROM users WHERE verification_token = ? AND verification_token_expires_at > NOW()",
+      [code]
+    );
 
-    if (!user)
+    if (user.length === 0)
       return next(errorHandler(400, "Invalid or expired verification code"));
 
-    user.isVerified = true;
-    user.verificationToken = undefined;
-    user.verificationTokenExpiresAt = undefined;
-    await user.save();
+    db.query(
+      "UPDATE users SET is_verified = true, verification_token = NULL, verification_token_expires_at = NULL WHERE id = ?",
+      [user[0].id]
+    );
 
-    const creationDate = new Date(user.createdAt).toDateString();
-    await sendWelcomeEmail(user.email, user.name, creationDate, next);
+    await sendWelcomeEmail(
+      user[0].email,
+      user[0].name,
+      new Date(user[0].created_at).toDateString(),
+      next
+    );
 
-    res.status(200).json({
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      avatar: user.avatar,
-      isVerified: user.isVerified,
-    });
+    const [afterVerified] = await db.query(
+      "SELECT id, email, name, is_verified, role, address, contact, created_at FROM users WHERE id = ?",
+      [user[0].id]
+    );
+
+    res.status(200).json({ user: afterVerified[0] });
   } catch (error) {
-    console.log("error in verify email", error);
+    console.log(error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
@@ -148,30 +163,36 @@ export const verifyEmail = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    console.log("login details", email, password);
     if (!email || !password)
       return next(errorHandler(400, "Email and Password are required"));
 
-    const user = await User.findOne({ email });
-    if (!user) return next(errorHandler(400, "Invalid credentials"));
+    const [user] = await db.query(
+      "SELECT id, email, name, is_verified, role, address, contact, created_at, password_hash,image_url FROM users WHERE email = ?",
+      [email]
+    );
 
-    const isMatch = await user.matchPassword(password);
+    if (user.length === 0)
+      return next(errorHandler(400, "Invalid credentials"));
+
+    const isMatch = await bcrypt.compare(password, user[0].password_hash);
     if (!isMatch) return next(errorHandler(400, "Invalid credentials"));
 
-    if (!user.isVerified)
+    if (!user[0].is_verified)
       return next(errorHandler(400, "Email is not verified"));
 
-    const { accessToken, refreshToken } = generateTokens(user._id);
-    storeRefreshToken(user._id, refreshToken, next);
-    setCookies(res, accessToken, refreshToken, next);
-    res.status(200).json({
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      avatar: user.avatar,
-      isVerified: user.isVerified,
-    });
-  } catch (error) {}
+    const { accessToken, refreshToken } = generateTokens(user[0].id);
+    await storeRefreshToken(user[0].id, refreshToken, next);
+    setCookies(res, accessToken, refreshToken);
+
+    const userWithoutPassword = { ...user[0] };
+    delete userWithoutPassword.password_hash;
+
+    res.status(200).json({ user: userWithoutPassword });
+  } catch (error) {
+    console.log("Error in login:", error);
+    next(errorHandler(500, "Internal Server Error"));
+  }
 };
 
 export const logout = async (req, res, next) => {
@@ -186,7 +207,7 @@ export const logout = async (req, res, next) => {
     res.clearCookie("refreshToken");
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
-    console.log("error in logout", error);
+    console.log(error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
@@ -225,13 +246,18 @@ export const forgotPassword = async (req, res, next) => {
     const { email } = req.body;
     if (!email) return next(errorHandler(400, "Email is required"));
 
-    const user = await User.findOne({ email });
-    if (!user) return next(errorHandler(400, "User not found"));
+    const [result] = await db.query("SELECT id FROM users WHERE email = ?", [
+      email,
+    ]);
+    if (result.length === 0) return next(errorHandler(400, "User not found"));
 
     const resetToken = crypto.randomBytes(20).toString("hex");
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 01 hour
-    await user.save();
+    const resetPasswordExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
+
+    await db.query(
+      "UPDATE users SET reset_password_token = ?, reset_password_expires_at = ? WHERE email = ?",
+      [resetToken, resetPasswordExpiresAt, email]
+    );
 
     await sendPasswordResetRequestEmail(
       email,
@@ -241,46 +267,119 @@ export const forgotPassword = async (req, res, next) => {
 
     res.status(200).json({ message: "Password reset email sent" });
   } catch (error) {
-    console.log("error in forgot password", error);
+    console.log("Error in forgotPassword:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
 
-export const resetPassowrd = async (req, res, next) => {
+export const resetPassword = async (req, res, next) => {
   try {
-    const { token } = req.params;
+    const { resetToken } = req.params;
     const { password } = req.body;
 
-    if (!token || !password)
+    if (!resetToken || !password)
       return next(errorHandler(400, "Token and Password are required"));
 
-    const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpiresAt: { $gt: Date.now() },
-    });
+    const [result] = await db.query(
+      "SELECT id, email FROM users WHERE reset_password_token = ? AND reset_password_expires_at > NOW()",
+      [resetToken]
+    );
 
-    if (!user) return next(errorHandler(400, "Invalid or expired reset token"));
+    if (result.length === 0)
+      return next(errorHandler(400, "Invalid or expired reset token"));
 
-    user.password = password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpiresAt = undefined;
-    await user.save();
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    await sendPasswordResetSuccessEmail(user.email, next);
+    await db.query(
+      "UPDATE users SET password_hash = ?, reset_password_token = NULL, reset_password_expires_at = NULL WHERE id = ?",
+      [hashedPassword, result[0].id]
+    );
+
+    await sendPasswordResetSuccessEmail(result[0].email, next);
+
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
-    console.log("error in reset password", error);
+    console.log("Error in resetPassword:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
 
 export const getProfile = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id).select("-password");
-    if (!user) return next(errorHandler(404, "User not found"));
-    res.status(200).json(user);
+    const userId = req.user.id;
+
+    const [result] = await db.query(
+      "SELECT id, email, name, is_verified, role, address, contact, created_at, image_url FROM users WHERE id = ?",
+      [userId]
+    );
+
+    if (result.length === 0) {
+      return next(errorHandler(404, "User not found"));
+    }
+
+    res.status(200).json({ user: result[0] });
   } catch (error) {
-    console.log("error in get profile", error);
+    console.log("Error fetching user profile:", error);
+    next(errorHandler(500, "Internal Server Error"));
+  }
+};
+
+export const googleOAuth = async (req, res, next) => {
+  try {
+    const { email, name, imageUrl } = req.body;
+    if (!email || !name)
+      return next(errorHandler(400, "Email and Password are required"));
+
+    const [existingUser] = await db.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
+    if (existingUser.length > 0) {
+      const { accessToken, refreshToken } = generateTokens(existingUser[0].id);
+      await storeRefreshToken(existingUser[0].id, refreshToken, next);
+      setCookies(res, accessToken, refreshToken);
+
+      const userWithoutPassword = { ...existingUser[0] };
+      delete userWithoutPassword.password_hash;
+
+      res.status(200).json({ user: userWithoutPassword });
+    }
+
+    const password = crypto.randomBytes(20).toString("hex");
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const token = generateVerificationToken();
+
+    const [result] = await db.query(
+      "INSERT INTO users (email, name, password_hash, verification_token, verification_token_expires_at, image_url) VALUES (?, ?, ?, ?, ?,?)",
+      [
+        email,
+        name,
+        hashedPassword,
+        token,
+        new Date(Date.now() + 24 * 60 * 60 * 1000),
+        imageUrl || null,
+      ]
+    );
+
+    const userId = result.insertId;
+
+    const [createdUser] = await db.query(
+      "SELECT id, email, name, is_verified, role, address, contact, created_at, image_url FROM users WHERE id = ?",
+      [userId]
+    );
+
+    const { accessToken, refreshToken } = generateTokens(userId);
+
+    await storeRefreshToken(userId, refreshToken, next);
+
+    setCookies(res, accessToken, refreshToken);
+
+    await sendVerificationEmail(email, token, next);
+
+    res.status(201).json({ user: createdUser[0] });
+  } catch (error) {
+    console.log(error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };

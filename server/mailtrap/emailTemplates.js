@@ -12,7 +12,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
   </div>
   <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
     <p>Hello there,</p>
-    <p>Thank you for signing up with UpTrend! Your verification code is:</p>
+    <p>Thank you for signing up with Lendify! Your verification code is:</p>
     <div style="text-align: center; margin: 30px 0;">
       <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #2196F3;">{verificationCode}</span>
     </div>
@@ -103,9 +103,9 @@ export const WELCOME_EMAIL_TEMPLATE = `
   </div>
   <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
     <p>Hello {name},</p>
-    <p>Thank you for joining UpTrend! We're excited to have you as part of our community.</p>
+    <p>Thank you for joining Lendify! We're excited to have you as part of our community.</p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://lendify.com/account/{userId}" style="background-color: #2196F3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Access Your Account</a>
+      <a href="http://localhost:5173/login" style="background-color: #2196F3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Access Your Account</a>
     </div>
     <p>Here's a summary of your account information:</p>
     <ul style="background-color: #fff; padding: 15px; border-radius: 4px; border-left: 4px solid #2196F3;">
@@ -117,7 +117,7 @@ export const WELCOME_EMAIL_TEMPLATE = `
       <li>Complete your profile</li>
       <li>Explore our Books</li>
     </ol>
-    <p>If you have any questions, please visit our <a href="{helpCenter}" style="color: #2196F3; text-decoration: none;">Help Center</a> or contact our support team at <a href="mailto:support@uptrend.com" style="color: #2196F3; text-decoration: none;">support@lendify.com</a>.</p>
+    <p>If you have any questions, please visit our <a href="{helpCenter}" style="color: #2196F3; text-decoration: none;">Help Center</a> or contact our support team at <a href="mailto:support@Lendify.com" style="color: #2196F3; text-decoration: none;">support@lendify.com</a>.</p>
     <p>Best regards,<br>The Lendify Team</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">

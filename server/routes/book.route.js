@@ -4,14 +4,16 @@ import {
   createBook,
   deleteBook,
   updateBook,
-  getBooks,
+  getBookById,
+  searchBooks,
 } from "../controllers/book.controller.js";
 
 const router = express.Router();
 
+router.get("/search/", searchBooks);
 router.post("/", protectedRoute, adminRoute, createBook);
+router.get("/:id", getBookById);
 router.delete("/:id", protectedRoute, adminRoute, deleteBook);
 router.put("/:id", protectedRoute, adminRoute, updateBook);
-router.get("/", protectedRoute, getBooks);
 
 export default router;

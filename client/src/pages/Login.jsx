@@ -17,8 +17,11 @@ import { Input } from "@/components/ui/input";
 import { ModeToggle } from "../components/mode-toggle";
 import { IoEye } from "react-icons/io5";
 import { IoEyeOff } from "react-icons/io5";
+import { useUserStore } from "@/stores/useUserStore";
+import GoogleOAuth from "@/components/GoogleOAuth";
 
 function Login() {
+  const { login, loading } = useUserStore();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   // schema for form validation
@@ -41,8 +44,8 @@ function Login() {
   });
 
   // Handle submission
-  const onSubmit = (data) => {
-    console.log("Form Data:", data);
+  const onSubmit = async (data) => {
+    login(data.email, data.password, navigate);
   };
 
   return (
@@ -114,7 +117,7 @@ function Login() {
                 size="lg"
                 className="w-full"
               >
-                Login
+                {loading ? "Loading..." : "Login"}
               </Button>
             </form>
             <div className="flex mt-5 gap-5 justify-between mb-4">
@@ -134,6 +137,13 @@ function Login() {
                 Forget Password ?
               </div>
             </div>
+            <div className="flex items-center justify-center w-full my-4">
+              <span className="flex-1 border-t border-gray-300"></span>
+              <span className="px-3 text-gray-500 text-sm">or</span>
+              <span className="flex-1 border-t border-gray-300"></span>
+            </div>
+
+            <GoogleOAuth />
           </Form>
         </div>
       </div>

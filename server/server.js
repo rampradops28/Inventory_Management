@@ -2,13 +2,12 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-
-// local dependencies
-import { connectDB } from "./lib/db.js";
+import cors from "cors";
 
 // routes
 import authRotes from "./routes/auth.route.js";
 import bookRoutes from "./routes/book.route.js";
+import reservationRoutes from "./routes/reservation.route.js";
 
 // load environment variables
 dotenv.config();
@@ -18,16 +17,23 @@ const app = express();
 // middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 //routes
 app.use("/api/auth", authRotes);
 app.use("/api/books", bookRoutes);
+app.use("/api/reservations", reservationRoutes);
 
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
-  connectDB();
+  //
 });
 
 // error handle

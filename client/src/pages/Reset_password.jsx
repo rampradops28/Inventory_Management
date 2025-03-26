@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import {
   Form,
   FormControl,
@@ -11,15 +11,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ModeToggle } from "../components/mode-toggle";
 import { IoEye } from "react-icons/io5";
 import { IoEyeOff } from "react-icons/io5";
 import { useState } from "react";
+import { useUserStore } from "@/stores/useUserStore";
 
 function Reset_password() {
+  const { token } = useParams();
+  const { resetPassword, loading } = useUserStore();
   const navigate = useNavigate();
   const format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
   const [showPassword, setShowPassword] = useState(false);
@@ -50,9 +52,8 @@ function Reset_password() {
     },
   });
 
-  const onSubmit = (data) => {
-    console.log("Form Data:", data);
-    navigate("");
+  const onSubmit = async (data) => {
+    resetPassword(token, data.password, navigate);
   };
   return (
     <div className="min-h-screen grid sm:grid-cols-2 justify-center items-center gap-4">
@@ -137,7 +138,7 @@ function Reset_password() {
               size="lg"
               className="w-full"
             >
-              Reset Password
+              {} {loading ? "Loading..." : "Reset Password"}
             </Button>
           </form>
         </Form>

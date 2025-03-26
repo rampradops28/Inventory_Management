@@ -16,8 +16,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ModeToggle } from "../components/mode-toggle";
-
+import { useUserStore } from "@/stores/useUserStore";
 function Forget_password() {
+  const { forgetPassword, loading } = useUserStore();
   const navigate = useNavigate();
 
   const formSchema = z.object({
@@ -34,8 +35,7 @@ function Forget_password() {
   });
 
   const onSubmit = (data) => {
-    console.log("Form Data:", data);
-    navigate("/reset_password");
+    forgetPassword(data.email, navigate);
   };
 
   return (
@@ -75,7 +75,7 @@ function Forget_password() {
               size="lg"
               className="w-full"
             >
-              Send the reset link
+              {loading ? "Loading..." : "Send Reset Link"}
             </Button>
           </form>
         </Form>
