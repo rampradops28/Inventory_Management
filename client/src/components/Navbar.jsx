@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // Corrected import
+import { Link } from "react-router";
 import { ModeToggle } from "./mode-toggle";
 import userPng from "../assets/images/user.png";
 
