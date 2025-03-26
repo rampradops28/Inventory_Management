@@ -104,7 +104,7 @@ export const register = async (req, res, next) => {
 
     // Fetch the created user from the database, excluding the password
     const [createdUser] = await db.query(
-      "SELECT id, email, name, is_verified, role, address, contact, created_at FROM users WHERE id = ?",
+      "SELECT id, email, name, is_verified, role, address, contact, created_at,image_url FROM users WHERE id = ?",
       [userId]
     );
 
@@ -163,11 +163,12 @@ export const verifyEmail = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    console.log("login details", email, password);
     if (!email || !password)
       return next(errorHandler(400, "Email and Password are required"));
 
     const [user] = await db.query(
-      "SELECT id, email, name, is_verified, role, address, contact, created_at, password_hash FROM users WHERE email = ?",
+      "SELECT id, email, name, is_verified, role, address, contact, created_at, password_hash,image_url FROM users WHERE email = ?",
       [email]
     );
 
@@ -274,7 +275,6 @@ export const forgotPassword = async (req, res, next) => {
 export const resetPassword = async (req, res, next) => {
   try {
     const { resetToken } = req.params;
-    console.log(resetToken);
     const { password } = req.body;
 
     if (!resetToken || !password)
@@ -284,8 +284,6 @@ export const resetPassword = async (req, res, next) => {
       "SELECT id, email FROM users WHERE reset_password_token = ? AND reset_password_expires_at > NOW()",
       [resetToken]
     );
-
-    console.log(result);
 
     if (result.length === 0)
       return next(errorHandler(400, "Invalid or expired reset token"));
@@ -311,7 +309,7 @@ export const getProfile = async (req, res, next) => {
     const userId = req.user.id;
 
     const [result] = await db.query(
-      "SELECT id, email, name, is_verified, role, address, contact, created_at FROM users WHERE id = ?",
+      "SELECT id, email, name, is_verified, role, address, contact, created_at, image_url FROM users WHERE id = ?",
       [userId]
     );
 
@@ -322,6 +320,58 @@ export const getProfile = async (req, res, next) => {
     res.status(200).json({ user: result[0] });
   } catch (error) {
     console.log("Error fetching user profile:", error);
+    next(errorHandler(500, "Internal Server Error"));
+  }
+};
+
+export const googleOAuth = async (req, res, next) => {
+  try {
+    const { email, name, imageUrl } = req.body;
+    if (!email || !name)
+      return next(errorHandler(400, "Email and Password are required"));
+
+    const [existingUser] = await db.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
+    if (existingUser.length > 0)
+      return next(errorHandler(400, "User already exists"));
+
+    const password = crypto.randomBytes(20).toString("hex");
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const token = generateVerificationToken();
+
+    const [result] = await db.query(
+      "INSERT INTO users (email, name, password_hash, verification_token, verification_token_expires_at, image_url) VALUES (?, ?, ?, ?, ?,?)",
+      [
+        email,
+        name,
+        hashedPassword,
+        token,
+        new Date(Date.now() + 24 * 60 * 60 * 1000),
+        imageUrl || null,
+      ]
+    );
+
+    const userId = result.insertId;
+
+    const [createdUser] = await db.query(
+      "SELECT id, email, name, is_verified, role, address, contact, created_at, image_url FROM users WHERE id = ?",
+      [userId]
+    );
+
+    const { accessToken, refreshToken } = generateTokens(userId);
+
+    await storeRefreshToken(userId, refreshToken, next);
+
+    setCookies(res, accessToken, refreshToken);
+
+    await sendVerificationEmail(email, token, next);
+
+    res.status(201).json({ user: createdUser[0] });
+  } catch (error) {
+    console.log(error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };

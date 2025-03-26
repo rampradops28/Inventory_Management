@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import { z } from "zod";
 import { useState } from "react";
+import { useUserStore } from "@/stores/useUserStore";
 
 function Verify_email() {
+  const { verifyEmail, loading } = useUserStore();
   const navigate = useNavigate();
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
@@ -21,8 +23,7 @@ function Verify_email() {
     try {
       otpSchema.parse(otp);
       setError("");
-      console.log("OTP Verified:", otp);
-      navigate("/");
+      verifyEmail(otp, navigate);
     } catch (validationError) {
       setError(validationError.errors[0].message);
       e;
@@ -66,7 +67,7 @@ function Verify_email() {
           className="w-full"
           onClick={handleVerify}
         >
-          Verify
+          {loading ? "Verifying..." : "Verify"}
         </Button>
       </div>
     </div>

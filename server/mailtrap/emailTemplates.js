@@ -105,7 +105,7 @@ export const WELCOME_EMAIL_TEMPLATE = `
     <p>Hello {name},</p>
     <p>Thank you for joining Lendify! We're excited to have you as part of our community.</p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://lendify.com/account/{userId}" style="background-color: #2196F3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Access Your Account</a>
+      <a href="http://localhost:5173/login" style="background-color: #2196F3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Access Your Account</a>
     </div>
     <p>Here's a summary of your account information:</p>
     <ul style="background-color: #fff; padding: 15px; border-radius: 4px; border-left: 4px solid #2196F3;">

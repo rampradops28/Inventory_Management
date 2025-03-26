@@ -31,7 +31,7 @@ export const useUserStore = create((set, get) => ({
     set({ loading: true });
     try {
       const res = await axiosInstance.post("/auth/verify-email", {
-        token,
+        code: token,
       });
 
       set({ user: res.data, loading: false });
@@ -68,7 +68,7 @@ export const useUserStore = create((set, get) => ({
   forgetPassword: async (email) => {
     set({ loading: true });
     try {
-      const res = await axiosInstance.post("/api/forget-password", {
+      const res = await axiosInstance.post("/auth/forget-password", {
         email,
       });
 
@@ -81,12 +81,15 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  resetPassword: async (token, password, navigate) => {
+  resetPassword: async (resetToken, password, navigate) => {
     set({ loading: true });
     try {
-      const res = await axiosInstance.post(`/api/reset-password/${token}`, {
-        password,
-      });
+      const res = await axiosInstance.post(
+        `/auth/reset-password/${resetToken}`,
+        {
+          password,
+        }
+      );
 
       toast.success(res.data.message);
       set({ loading: false });
@@ -115,7 +118,24 @@ export const useUserStore = create((set, get) => ({
     set({ loading: true });
     try {
     } catch (error) {
+      set({ loading: false });
       console.log("error in logout", error);
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  },
+
+  google: async (email, name, imageUrl) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.post("/auth/google-oauth", {
+        email,
+        name,
+        imageUrl,
+      });
+      set({ user: res.data.user, loading: false });
+    } catch (error) {
+      set({ loading: false });
+      console.log("error in google login", error);
       toast.error(error.response?.data?.message || "An error occurred");
     }
   },

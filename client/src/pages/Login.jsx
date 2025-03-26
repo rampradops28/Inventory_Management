@@ -17,8 +17,11 @@ import { Input } from "@/components/ui/input";
 import { ModeToggle } from "../components/mode-toggle";
 import { IoEye } from "react-icons/io5";
 import { IoEyeOff } from "react-icons/io5";
+import { useUserStore } from "@/stores/useUserStore";
+import GoogleOAuth from "@/components/GoogleOAuth";
 
 function Login() {
+  const { login, loading } = useUserStore();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   // schema for form validation
@@ -41,8 +44,8 @@ function Login() {
   });
 
   // Handle submission
-  const onSubmit = (data) => {
-    console.log("Form Data:", data);
+  const onSubmit = async (data) => {
+    login(data.email, data.password, navigate);
   };
 
   return (
@@ -114,7 +117,7 @@ function Login() {
                 size="lg"
                 className="w-full"
               >
-                Login
+                {loading ? "Loading..." : "Login"}
               </Button>
             </form>
             <div className="flex mt-5 gap-5 justify-between mb-4">
@@ -140,17 +143,7 @@ function Login() {
               <span className="flex-1 border-t border-gray-300"></span>
             </div>
 
-            <div className="social-login-buttons">
-              <button className="w-full flex items-center justify-center gap-3 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                <img
-                  src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg"
-                  alt="Google"
-                  width="20"
-                  className="h-5 w-5"
-                />
-                <span>Sign up with Google</span>
-              </button>
-            </div>
+            <GoogleOAuth />
           </Form>
         </div>
       </div>
