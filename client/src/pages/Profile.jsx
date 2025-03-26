@@ -32,6 +32,11 @@ const passwordSchema = z.object({
   path: ["confirmpassword"],
 });
 
+const reservedBooks = [
+  { id: 1, name: "To Kill a Mockingbird", borrowedDate: "2024-03-01", returnedDate: "2024-03-15" },
+  { id: 2, name: "1984", borrowedDate: "2024-02-20", returnedDate: "2024-03-05" },
+];
+
 function Profile() {
   // Form instance for profile details
   const profileForm = useForm({
@@ -64,9 +69,9 @@ function Profile() {
   };
 
   return (
-    <>
+    <div>
       {/* Profile Section */}
-      <section className="py-10 my-auto dark:bg-gray-900/70 min-h-screen">
+      <section className="py-10 my-auto dark:bg-gray-900/70">
         <div className="lg:w-[80%] md:w-[90%] w-[96%] mx-auto flex gap-4">
           <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto shadow-2xl p-4 rounded-xl h-fit self-center dark:bg-gray-800/40">
             <h1 className="lg:text-3xl md:text-2xl text-xl font-extrabold mb-2 dark:text-white">
@@ -166,7 +171,7 @@ function Profile() {
       </section>
 
       {/* Change Password Section */}
-      <section className="py-10 my-auto dark:bg-gray-900/70 min-h-screen">
+      <section className="py-10 my-auto dark:bg-gray-900/70">
         <div className="lg:w-[80%] md:w-[90%] w-[96%] mx-auto flex gap-1">
           <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto shadow-2xl p-4 rounded-xl h-fit self-center dark:bg-gray-800/40">
             <h1 className="lg:text-3xl md:text-2xl text-xl font-extrabold mb-2 dark:text-white">
@@ -229,7 +234,42 @@ function Profile() {
           </div>
         </div>
       </section>
-    </>
+
+      {/* Reserved Books Section */}
+      <section className="py-10 my-auto dark:bg-gray-900/70">
+        <div className="lg:w-[80%] md:w-[90%] w-[96%] mx-auto flex gap-1">
+          <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto shadow-2xl p-4 rounded-xl h-fit self-center dark:bg-gray-800/40">
+            <h1 className="lg:text-3xl md:text-2xl text-xl font-extrabold mb-2 dark:text-white">
+              Reserved Books
+            </h1>
+            <h2 className="text-gray-500 text-sm mb-4 dark:text-gray-400">
+              Books you have reserved
+            </h2>
+
+            <div className="overflow-x-auto">
+              <table className="w-full table-auto">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 dark:bg-gray-800">Book Name</th>
+                    <th className="px-4 py-2 dark:bg-gray-800">Borrowed Date</th>
+                    <th className="px-4 py-2 dark:bg-gray-800">Returned Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reservedBooks.map((book) => (
+                    <tr key={book.id}>
+                      <td className="border px-4 py-2 dark:border-gray-700">{book.name}</td>
+                      <td className="border px-4 py-2 dark:border-gray-700">{book.borrowedDate}</td>
+                      <td className="border px-4 py-2 dark:border-gray-700">{book.returnedDate}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
 
