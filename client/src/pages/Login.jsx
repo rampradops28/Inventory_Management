@@ -134,6 +134,23 @@ function Login() {
                 Forget Password ?
               </div>
             </div>
+            <div className="flex items-center justify-center w-full my-4">
+              <span className="flex-1 border-t border-gray-300"></span>
+              <span className="px-3 text-gray-500 text-sm">or</span>
+              <span className="flex-1 border-t border-gray-300"></span>
+            </div>
+
+            <div className="social-login-buttons">
+              <button className="w-full flex items-center justify-center gap-3 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                <img 
+                  src="https://cdn.cdnlogo.com/logos/g/35/google-icon.svg" 
+                  alt="Google" 
+                  width="20" 
+                  className="h-5 w-5"
+                />
+                <span>Sign up with Google</span>
+              </button>
+            </div>
           </Form>
         </div>
       </div>
