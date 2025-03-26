@@ -129,6 +129,37 @@ function Profile() {
                 )}
               />
 
+              {/* Address Field */}
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* contact no Field */}
+              <FormField
+                control={form.control}
+                name="contact"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact No</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your contact no" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            
+
               {/* Submit Button */}
               <Button
                 type="submit"
