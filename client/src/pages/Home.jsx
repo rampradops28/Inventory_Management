@@ -2,7 +2,7 @@ import React from "react";
 import BookCard from "../components/PopularBooks";
 import Services from "../components/Services";
 import { Button } from "@/components/ui/button";
-
+import { Link } from "react-router-dom";
 function Home() {
   return (
     <div className="container mx-auto px-4 py-8 bg-white dark:bg-gray-800 transition-colors duration-300">
@@ -16,7 +16,9 @@ function Home() {
             read, and expand your knowledge with our extensive collection.
           </p>
           <div className="flex justify-center">
-            <Button variant="default">Get Start</Button>
+            <Link to="/book-category">
+              <Button variant="default">Get Started Now</Button>
+            </Link>
           </div>
         </div>
       </div>

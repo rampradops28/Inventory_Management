@@ -12,7 +12,6 @@ function Navbar() {
   return (
     <nav className="bg-white/70 border-gray-200 dark:bg-gray-900">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        {/* Logo */}
         <Link
           to="/"
           className="flex items-center space-x-3 rtl:space-x-reverse"
@@ -38,7 +37,7 @@ function Navbar() {
             <span className="sr-only">Open user menu</span>
             <img
               className="w-10 h-10 rounded-full"
-              src={user.image_url || userPng}
+              src={user?.image_url || userPng}
               alt="User"
             />
           </button>

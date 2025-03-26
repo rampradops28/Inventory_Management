@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { IoIosSearch } from "react-icons/io";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const books = [
-  // Fiction Books
   {
     id: 1,
     title: "Gone with the Wind",
@@ -38,7 +45,6 @@ const books = [
     description: "A dystopian novel about totalitarianism and surveillance.",
   },
 
-  // Non-Fiction Books
   {
     id: 5,
     title: "Into the Wild",
@@ -73,7 +79,6 @@ const books = [
     description: "The memoir of former First Lady Michelle Obama.",
   },
 
-  // Science Books
   {
     id: 9,
     title: "A Brief History of Time",
@@ -155,51 +160,72 @@ function BookCategory() {
   const filteredBooks = books.filter(
     (book) =>
       book.category.toLowerCase() === categoryName.toLowerCase() &&
-      book.title.toLowerCase().includes(searchTerm.toLowerCase())
+      (book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        book.author.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleBookClick = (bookId) => {
-    navigate(`/book/${bookId}`); // Navigate to the BookView page with the book ID
+    navigate(`/book/${bookId}`);
   };
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
+    <div className="p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen m-10 p-10 rounded-2xl shadow-lg">
       <h1 className="text-4xl font-bold text-center mb-6 uppercase">
         {categoryName} Books
       </h1>
+
       <div className="flex justify-center mb-6">
         <div className="relative w-full max-w-lg">
           <input
             type="text"
-            placeholder="Search for a book..."
+            placeholder="Search by book title or author..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="w-full px-4 py-3 pl-12 border rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            className="w-full px-4 py-3 pl-12 border rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 font-poppins"
           />
           <IoIosSearch className="absolute left-4 top-3 text-gray-500 dark:text-gray-300 text-lg" />
         </div>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredBooks.length > 0 ? (
           filteredBooks.map((book) => (
-            <div
+            <Card
               key={book.id}
-              className="bg-gray-800 p-5 rounded-lg shadow-lg transform transition-transform hover:scale-105 hover:shadow-xl cursor-pointer"
+              className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
               onClick={() => handleBookClick(book.id)}
             >
-              <img
-                src={book.image}
-                alt={book.title}
-                className="w-full h-48 object-cover rounded-md mb-4"
-              />
-              <h2 className="text-lg font-semibold text-white">{book.title}</h2>
-              <p className="text-gray-400">{book.author}</p>
-            </div>
+              <CardHeader className="p-0">
+                <img
+                  src={book.image}
+                  alt={book.title}
+                  className="w-full h-48 object-cover rounded-t-lg"
+                />
+              </CardHeader>
+              <CardContent className="p-4">
+                <CardTitle className="text-lg mb-2">{book.title}</CardTitle>
+                <CardDescription className="mb-4">
+                  {book.author}
+                </CardDescription>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleBookClick(book.id);
+                  }}
+                >
+                  View Details
+                </Button>
+              </CardContent>
+            </Card>
           ))
         ) : (
-          <p className="text-gray-500 dark:text-gray-400 text-center col-span-full">
-            No books found.
-          </p>
+          <div className="col-span-full text-center py-12">
+            <p className="text-gray-500 dark:text-gray-400">
+              No books found in this category.
+            </p>
+          </div>
         )}
       </div>
     </div>
