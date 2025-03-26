@@ -1,6 +1,7 @@
 import React from "react";
 import BookCard from "../components/PopularBooks";
 import Categories from "../components/Categories";
+import Services from "../components/Services";
 
 function Home() {
   return (
@@ -26,11 +27,14 @@ function Home() {
         </div>
       </div>
 
-      {/* Popular books section */}
+      {/* popular books section */}
       <BookCard />
 
-      {/* Categories section */}
+      {/* categories section */}
       <Categories />
+
+      {/* services section */}
+      <Services />
     </div>
   );
 }
