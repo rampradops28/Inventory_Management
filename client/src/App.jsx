@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "./components/ui/theme-provider";
 import { Toaster } from "react-hot-toast";
 
@@ -13,6 +13,7 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import BookDetails from "./pages/Book_details";
+import BookCategory from "./pages/Book_category"; // Corrected import
 
 // app component
 import Navbar from "./components/Navbar";
@@ -54,6 +55,11 @@ function AppContent() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/book-details" element={<BookDetails />} />
+        <Route
+          path="/book-category/:categoryName"
+          element={<BookCategory />}
+        />{" "}
+        {/* Dynamic route */}
       </Routes>
     </>
   );
