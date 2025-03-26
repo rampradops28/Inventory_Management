@@ -2,12 +2,15 @@ import React from "react";
 import { useParams } from "react-router-dom";
 
 const books = [
+  // Fiction Books
   {
     id: 1,
     title: "Gone with the Wind",
     author: "Margaret Mitchell",
     category: "Fiction",
-    image: "/assets/images/fiction.png",
+    image:
+      "https://upload.wikimedia.org/wikipedia/en/6/66/Gone_with_the_Wind_cover.jpg",
+
     description:
       "A historical novel set in the American South during the Civil War.",
     publicationDate: "1936",
@@ -20,7 +23,8 @@ const books = [
     title: "The Kite Runner",
     author: "Khaled Hosseini",
     category: "Fiction",
-    image: "/assets/images/fiction2.png",
+    image:
+      "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.shakespeareandcompany.com%2Fbooks%2Fthe-name-of-the-wind&psig=AOvVaw0dH_KMNPj84evbHM-w82Yx&ust=1743063516110000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCJjlmuGnp4wDFQAAAAAdAAAAABAJ",
     description: "A story of friendship and redemption set in Afghanistan.",
     publicationDate: "2003",
     pages: 371,
@@ -29,15 +33,79 @@ const books = [
   },
   {
     id: 3,
+    title: "To Kill a Mockingbird",
+    author: "Harper Lee",
+    category: "Fiction",
+    image:
+      "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.shakespeareandcompany.com%2Fbooks%2Fthe-name-of-the-wind&psig=AOvVaw0dH_KMNPj84evbHM-w82Yx&ust=1743063516110000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCJjlmuGnp4wDFQAAAAAdAAAAABAJ",
+    description: "A novel about racial injustice in the Deep South.",
+    publicationDate: "1960",
+    pages: 281,
+    publisher: "J.B. Lippincott & Co.",
+    language: "English",
+  },
+  {
+    id: 4,
+    title: "1984",
+    author: "George Orwell",
+    category: "Fiction",
+    image:
+      "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.shakespeareandcompany.com%2Fbooks%2Fthe-name-of-the-wind&psig=AOvVaw0dH_KMNPj84evbHM-w82Yx&ust=1743063516110000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCJjlmuGnp4wDFQAAAAAdAAAAABAJ",
+    description: "A dystopian novel about totalitarianism and surveillance.",
+    publicationDate: "1949",
+    pages: 328,
+    publisher: "Secker & Warburg",
+    language: "English",
+  },
+
+  // Non-Fiction Books
+  {
+    id: 5,
     title: "Into the Wild",
     author: "Jon Krakauer",
     category: "Non-Fiction",
-    image: "/assets/images/non-fiction.png",
+    image: "/assets/images/non-fiction1.png",
     description:
       "The true story of Christopher McCandless and his journey into the Alaskan wilderness.",
     publicationDate: "1996",
     pages: 224,
     publisher: "Villard",
+    language: "English",
+  },
+  {
+    id: 6,
+    title: "Educated",
+    author: "Tara Westover",
+    category: "Non-Fiction",
+    image: "/assets/images/non-fiction2.png",
+    description: "A memoir about growing up in a strict and abusive household.",
+    publicationDate: "2018",
+    pages: 334,
+    publisher: "Random House",
+    language: "English",
+  },
+  {
+    id: 7,
+    title: "Sapiens",
+    author: "Yuval Noah Harari",
+    category: "Non-Fiction",
+    image: "/assets/images/non-fiction3.png",
+    description: "A brief history of humankind.",
+    publicationDate: "2011",
+    pages: 443,
+    publisher: "Harvill Secker",
+    language: "English",
+  },
+  {
+    id: 8,
+    title: "Becoming",
+    author: "Michelle Obama",
+    category: "Non-Fiction",
+    image: "/assets/images/non-fiction4.png",
+    description: "The memoir of former First Lady Michelle Obama.",
+    publicationDate: "2018",
+    pages: 426,
+    publisher: "Crown Publishing Group",
     language: "English",
   },
 ];
@@ -50,8 +118,8 @@ function BookView() {
     return <p className="text-center text-white">Book not found.</p>;
   }
 
-  const handleBorrowClick = () => {
-    alert(`You have borrowed "${book.title}" by ${book.author}.`);
+  const handleAddReservation = () => {
+    alert(`You have reserved "${book.title}" by ${book.author}.`);
   };
 
   return (
@@ -96,11 +164,11 @@ function BookView() {
           <p className="text-gray-300">{book.description}</p>
         </div>
 
-        {/* Borrow Button */}
+        {/* Add Reservation Button */}
         <div className="mt-6 text-center">
           <button
-            onClick={handleBorrowClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg"
+            onClick={handleAddReservation}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105"
           >
             Add Reservation
           </button>
