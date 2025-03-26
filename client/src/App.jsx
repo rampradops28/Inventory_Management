@@ -55,7 +55,7 @@ function AppContent() {
         <Route path="/verify-email" element={<Verify_email />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/book-details" element={<BookDetails />} />
+        <Route path="/book-category" element={<BookDetails />} />
         <Route path="/book-category/:categoryName" element={<BookCategory />} />
         <Route path="/book/:bookId" element={<BookView />} />
       </Routes>

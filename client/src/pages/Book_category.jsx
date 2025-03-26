@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { useParams, useNavigate } from "react-router-dom";
-
-import { useParams } from "react-router";
+import { IoIosSearch } from "react-icons/io";
 
 const books = [
   {
@@ -71,7 +70,7 @@ function BookCategory() {
               focus:outline-none 
               focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           />
-          <FaSearch className="absolute right-3 top-3 text-gray-500 dark:text-gray-300" />
+          <IoIosSearch className="absolute right-3 top-3 text-gray-500 dark:text-gray-300" />
         </div>
       </div>
       <div className="flex justify-center gap-4 flex-wrap">
@@ -79,8 +78,8 @@ function BookCategory() {
           filteredBooks.map((book) => (
             <div
               key={book.id}
-            className="bg-gray-800 p-4 rounded-lg shadow-md w-48 text-center cursor-pointer"
-           >
+              className="bg-gray-800 p-4 rounded-lg shadow-md w-48 text-center cursor-pointer"
+            >
               <img
                 src={book.image}
                 alt={book.title}
