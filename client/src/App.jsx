@@ -1,7 +1,14 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import { ThemeProvider } from "./components/ui/theme-provider";
 import { Toaster } from "react-hot-toast";
+import { useUserStore } from "./stores/useUserStore";
 
 // pages import
 import Login from "./pages/Login";
@@ -19,8 +26,19 @@ import BookView from "./pages/Book_view";
 // app components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {
+  const { checkAuth, checkingAuth } = useUserStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  if (checkingAuth) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <BrowserRouter>
@@ -33,6 +51,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
+  const { user } = useUserStore();
 
   const hideNavbarRoutes = [
     "/verify-email",
@@ -71,20 +90,50 @@ function AppContent() {
       {!shouldHideNavbar && <Navbar />}
       <main className="flex-grow">
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/forget-password" element={<Forget_password />} />
-          <Route path="/reset-password/:token" element={<Reset_password />} />
+          {/* Authentication Routes */}
+          <Route
+            path="/login"
+            element={!user ? <Login /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/signup"
+            element={!user ? <SignUp /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/forget-password"
+            element={!user ? <Forget_password /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/reset-password/:token"
+            element={!user ? <Reset_password /> : <Navigate to="/" replace />}
+          />
+
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/verify-email" element={<Verify_email />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
           <Route path="/book-category" element={<BookDetails />} />
           <Route
             path="/book-category/:categoryName"
             element={<BookCategory />}
           />
           <Route path="/book/:bookId" element={<BookView />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              user?.role === "admin" ? (
+                <Dashboard />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
+            path="/profile"
+            element={user ? <Profile /> : <Navigate to="/login" replace />}
+          />
+
           <Route path="*" element={<h1>Not Found</h1>} />
         </Routes>
       </main>
