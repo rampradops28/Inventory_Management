@@ -124,7 +124,7 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  google: async (email, name, imageUrl) => {
+  google: async (email, name, imageUrl, navigate) => {
     set({ loading: true });
     try {
       const res = await axiosInstance.post("/auth/google-oauth", {
@@ -133,6 +133,10 @@ export const useUserStore = create((set, get) => ({
         imageUrl,
       });
       set({ user: res.data.user, loading: false });
+      toast.success("Login successful");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } catch (error) {
       set({ loading: false });
       console.log("error in google login", error);

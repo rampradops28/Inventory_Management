@@ -334,8 +334,16 @@ export const googleOAuth = async (req, res, next) => {
       "SELECT * FROM users WHERE email = ?",
       [email]
     );
-    if (existingUser.length > 0)
-      return next(errorHandler(400, "User already exists"));
+    if (existingUser.length > 0) {
+      const { accessToken, refreshToken } = generateTokens(existingUser[0].id);
+      await storeRefreshToken(existingUser[0].id, refreshToken, next);
+      setCookies(res, accessToken, refreshToken);
+
+      const userWithoutPassword = { ...existingUser[0] };
+      delete userWithoutPassword.password_hash;
+
+      res.status(200).json({ user: userWithoutPassword });
+    }
 
     const password = crypto.randomBytes(20).toString("hex");
     const hashedPassword = await bcrypt.hash(password, 10);
