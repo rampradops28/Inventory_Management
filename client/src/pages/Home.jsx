@@ -1,39 +1,28 @@
 import React from "react";
 import BookCard from "../components/PopularBooks";
-import Categories from "../components/Categories";
 import Services from "../components/Services";
+import { Button } from "@/components/ui/button";
 
 function Home() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Hero section */}
-      <div className="bg-blue-50 rounded-lg shadow-md p-8 mb-8">
+    <div className="container mx-auto px-4 py-8 bg-white dark:bg-gray-800 transition-colors duration-300">
+      <div className="bg-blue-50 rounded-lg shadow-md p-8 mb-8 dark:bg-gray-900 dark:text-gray-300">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-blue-800 mb-4">Welcome to Your Library</h1>
-          <p className="text-lg text-gray-600 mb-6">
-            Discover thousands of books across multiple categories.
-            Borrow, read, and expand your knowledge with our extensive collection.
+          <h1 className="text-4xl font-bold  mb-4 font-poppins">
+            Welcome to Lendify
+          </h1>
+          <p className="text-lg  mb-6 ">
+            Discover thousands of books across multiple categories. Borrow,
+            read, and expand your knowledge with our extensive collection.
           </p>
           <div className="flex justify-center">
-            <input
-              type="text"
-              placeholder="Search for books..."
-              className="p-2 w-full max-w-md rounded-l-md border border-r-0 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button className="bg-blue-600 text-white p-2 rounded-r-md hover:bg-blue-700">
-              Search
-            </button>
+            <Button variant="default">Get Start</Button>
           </div>
         </div>
       </div>
-
-      {/* popular books section */}
+      {/* Book component />*/}
       <BookCard />
-
-      {/* categories section */}
-      <Categories />
-
-      {/* services section */}
+      {/* Services component />*/}
       <Services />
     </div>
   );
