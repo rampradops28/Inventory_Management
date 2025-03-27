@@ -9,20 +9,29 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useBookStore } from "@/stores/useBookStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import UpdateBookModal from "./UpdateBookModal";
 
 function BooksTable() {
   const { getAllBooks, loading, books, deleteBook } = useBookStore();
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   useEffect(() => {
     getAllBooks();
   }, []);
 
   const handleUpdate = async (book) => {
-    console.log("Update book:", book);
+    setSelectedBook(book);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (book) => {
     await deleteBook(book.id);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedBook(null);
   };
 
   return (
@@ -76,6 +85,13 @@ function BooksTable() {
           ))}
         </TableBody>
       </Table>
+      {/* UpdateBookModal */}
+      {isModalOpen && selectedBook && (
+        <UpdateBookModal
+          book={selectedBook} // Pass the selected book to the modal
+          onClose={handleCloseModal} // Handle modal close
+        />
+      )}
     </div>
   );
 }

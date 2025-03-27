@@ -13,13 +13,14 @@ export const createBook = async (req, res, next) => {
     const { title, category, description, quantity, location, image, author } =
       req.body;
 
-    console.log(req.body);
-
-    if (!title || !category || !description || !author) {
+    if (
+      (!title || !category || !description || !author || !image || !location,
+      !quantity)
+    ) {
       return next(
         errorHandler(
           400,
-          "Title, category, author, and description are required"
+          "Title, category, author, image, quanity, location and description of the book are required"
         )
       );
     }
@@ -129,6 +130,7 @@ export const searchBooks = async (req, res, next) => {
 // Update book
 export const updateBook = async (req, res, next) => {
   try {
+    console.log(req.body, "inside update book");
     const { id } = req.params;
     const { title, category, description, quantity, location, image, author } =
       req.body;
@@ -183,6 +185,7 @@ export const updateBook = async (req, res, next) => {
     );
 
     res.status(200).json({
+      message: "Book updated successfully",
       book: updatedBookResult[0],
     });
   } catch (error) {

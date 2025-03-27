@@ -25,11 +25,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useBookStore } from "@/stores/useBookStore";
 import { Textarea } from "@/components/ui/textarea";
+import { useBookStore } from "@/stores/useBookStore";
 
-function AddBookModal({ onClose }) {
-  const { addBook, loading } = useBookStore();
+function UpdateBookModal({ book, onClose }) {
+  const { updateBook, loading } = useBookStore();
+
   const formSchema = z.object({
     title: z.string().min(1, { message: "Title is required" }),
     author: z.string().min(1, { message: "Author is required" }),
@@ -39,32 +40,23 @@ function AddBookModal({ onClose }) {
       .min(1, { message: "Available copies are required" }),
     description: z.string().min(5, { message: "Description is required" }),
     location: z.string().min(1, { message: "Location is required" }),
-    image: z.any().refine((image) => image !== null, {
-      message: "Image is required",
-    }),
+    image: z.any().optional(), // Image is optional for updates
   });
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      author: "",
-      category: "",
-      availableCopies: 1,
-      description: "",
-      location: "",
-      image: null,
+      title: book.title || "",
+      author: book.author || "",
+      category: book.category || "",
+      availableCopies: book.quantity || 1,
+      description: book.description || "",
+      location: book.location || "",
+      image: book.image_url || null,
     },
   });
 
-  const [previewImage, setPreviewImage] = useState(null);
-
-  const onSubmit = async (formData) => {
-    console.log(formData);
-    await addBook(formData);
-
-    onClose();
-  };
+  const [previewImage, setPreviewImage] = useState(book.image_url || null);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -72,30 +64,38 @@ function AddBookModal({ onClose }) {
     if (files.length > 0) {
       const file = files[0];
 
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
 
-        reader.onload = () => {
-          const base64Image = reader.result;
-          setPreviewImage(base64Image);
-          form.setValue("image", base64Image);
-          resolve(base64Image);
-        };
+      reader.onload = () => {
+        const base64Image = reader.result;
+        setPreviewImage(base64Image); // Update preview image
+        form.setValue("image", base64Image); // Update form value
+      };
 
-        reader.onerror = (error) => {
-          console.error("Error converting image to base64:", error);
-          reject(error);
-        };
-      });
+      reader.onerror = (error) => {
+        console.error("Error converting image to Base64:", error);
+      };
     }
+  };
+
+  const onSubmit = async (formData) => {
+    console.log("Updated Book Data:", formData);
+
+    if (formData.image === book.image_url) {
+      delete formData.image;
+    }
+
+    await updateBook(book.id, formData);
+
+    onClose();
   };
 
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add a New Book</DialogTitle>
+          <DialogTitle>Update Book</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -242,7 +242,7 @@ function AddBookModal({ onClose }) {
             />
 
             <Button type="submit" variant="default" className="w-full">
-              {loading ? "Adding..." : "Add Book"}
+              {loading ? "Updating..." : "Update Book"}
             </Button>
           </form>
         </Form>
@@ -251,4 +251,4 @@ function AddBookModal({ onClose }) {
   );
 }
 
-export default AddBookModal;
+export default UpdateBookModal;
