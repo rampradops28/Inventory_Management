@@ -8,32 +8,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-function BooksTable() {
-  const books = [
-    {
-      title: "The Great Gatsby",
-      category: "Fiction",
-      availableCopies: 5,
-      author: "F. Scott Fitzgerald",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjwR_qwwP-PgM2uGa5crh8YvIhpV_yc7LNXA&s",
-    },
-    {
-      title: "To Kill a Mockingbird",
-      category: "Classic",
-      availableCopies: 3,
-      author: "Harper Lee",
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjwR_qwwP-PgM2uGa5crh8YvIhpV_yc7LNXA&s",
-    },
-  ];
+import { useBookStore } from "@/stores/useBookStore";
+import { useEffect } from "react";
 
-  const handleUpdate = (book) => {
+function BooksTable() {
+  const { getAllBooks, loading, books, deleteBook } = useBookStore();
+  useEffect(() => {
+    getAllBooks();
+  }, []);
+
+  const handleUpdate = async (book) => {
     console.log("Update book:", book);
   };
 
-  const handleDelete = (book) => {
-    console.log("Delete book:", book);
+  const handleDelete = async (book) => {
+    await deleteBook(book.id);
   };
 
   return (
@@ -50,14 +39,17 @@ function BooksTable() {
         </TableHeader>
         <TableBody>
           {books.map((book, index) => (
-            <TableRow key={index}>
+            <TableRow key={book.id}>
               <TableCell className="font-medium">{book.title}</TableCell>
               <TableCell>{book.category}</TableCell>
-              <TableCell>{book.availableCopies}</TableCell>
+              <TableCell>{book.quantity}</TableCell>
               <TableCell>{book.author}</TableCell>
               <TableCell>
                 <img
-                  src={book.image}
+                  src={
+                    book.image ||
+                    "https://png.pngtree.com/png-clipart/20220503/ourmid/pngtree-stack-of-school-books-png-image_4561890.png"
+                  }
                   alt={book.title}
                   className="w-16 h-16 object-cover rounded"
                 />
@@ -76,7 +68,7 @@ function BooksTable() {
                     size="sm"
                     onClick={() => handleDelete(book)}
                   >
-                    Delete
+                    {loading ? "Deleting..." : "Delete"}
                   </Button>
                 </div>
               </TableCell>

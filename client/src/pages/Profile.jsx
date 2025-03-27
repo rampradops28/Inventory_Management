@@ -103,7 +103,7 @@ function Profile() {
     const files = Array.from(e.target.files);
 
     if (files.length > 0) {
-      const file = files[0]; // Take only the first file
+      const file = files[0];
 
       return new Promise((resolve, reject) => {
         const reader = new FileReader();

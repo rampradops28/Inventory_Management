@@ -214,10 +214,25 @@ export const deleteBook = async (req, res, next) => {
     await db.execute("DELETE FROM books WHERE id = ?", [id]);
 
     res.status(200).json({
-      success: true,
       message: "Book deleted successfully",
     });
   } catch (error) {
     next(error);
+  }
+};
+
+// get all books
+export const getAllBooks = async (req, res, next) => {
+  try {
+    console.log("Getting all books");
+    const [books] = await db.execute("SELECT * FROM books");
+    console.log("Books:", books);
+
+    res.status(200).json({
+      books: books,
+    });
+  } catch (error) {
+    console.log("Error fetching all books:", error);
+    next(errorHandler(500, "Internal Server Error"));
   }
 };
