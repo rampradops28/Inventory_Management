@@ -115,9 +115,12 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  logout: async () => {
+  logout: async (navigate) => {
     set({ loading: true });
     try {
+      const res = await axiosInstance.post("/auth/logout");
+      set({ user: null, loading: false });
+      navigate("/login");
     } catch (error) {
       set({ loading: false });
       console.log("error in logout", error);
