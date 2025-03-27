@@ -13,6 +13,7 @@ import {
 } from "../mailtrap/mailtrapEmail.js";
 import db from "../lib/db.js";
 import bcrypt from "bcryptjs";
+import cloudinary from "../lib/cloudinary.js";
 
 dotenv.config();
 
@@ -380,6 +381,63 @@ export const googleOAuth = async (req, res, next) => {
     res.status(201).json({ user: createdUser[0] });
   } catch (error) {
     console.log(error);
+    next(errorHandler(500, "Internal Server Error"));
+  }
+};
+
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { name, address, contact, image } = req.body;
+    const userId = req.user.id;
+
+    if (!userId) {
+      return next(errorHandler(400, "No user ID found"));
+    }
+
+    const [existingUser] = await db.query("SELECT * FROM users WHERE id = ?", [
+      userId,
+    ]);
+
+    if (existingUser.length === 0) {
+      return next(errorHandler(404, "User not found"));
+    }
+
+    let cloudinary_image_url = existingUser[0].image_url;
+
+    if (image) {
+      try {
+        if (existingUser[0].image_url) {
+          const publicId = existingUser[0].image_url
+            .split("/")
+            .pop()
+            .split(".")[0];
+          await cloudinary.uploader.destroy(`library_users/${publicId}`);
+        }
+
+        const uploadResponse = await cloudinary.uploader.upload(image, {
+          folder: "library_users",
+        });
+
+        cloudinary_image_url = uploadResponse.secure_url;
+      } catch (error) {
+        console.error("Cloudinary error:", error);
+        return next(errorHandler(500, "Error uploading image"));
+      }
+    }
+
+    await db.query(
+      "UPDATE users SET name = ?, address = ?, contact = ?, image_url = ? WHERE id = ?",
+      [name, address, contact, cloudinary_image_url, userId]
+    );
+
+    const [updatedUser] = await db.query(
+      "SELECT id, email, name, is_verified, role, address, contact, created_at, image_url FROM users WHERE id = ?",
+      [userId]
+    );
+
+    res.status(200).json({ user: updatedUser[0] });
+  } catch (error) {
+    console.error("Error in updateProfile:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };

@@ -147,4 +147,22 @@ export const useUserStore = create((set, get) => ({
       toast.error(error.response?.data?.message || "An error occurred");
     }
   },
+
+  updateProfile: async (name, email, contact, address) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.patch("/auth/profile-update", {
+        name,
+        email,
+        contact,
+        address,
+      });
+      set({ user: res.data.user, loading: false });
+      toast.success("Profile updated successfully");
+    } catch (error) {
+      set({ loading: false });
+      console.log("error in updating profile", error);
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  },
 }));

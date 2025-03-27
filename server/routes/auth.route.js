@@ -9,6 +9,7 @@ import {
   resetPassword,
   getProfile,
   googleOAuth,
+  updateProfile,
 } from "../controllers/auth.controller.js";
 import { protectedRoute } from "../middleware/auth.middleware.js";
 
@@ -22,7 +23,7 @@ router.post("/logout", logout);
 router.post("/refresh-token", refreshToken);
 router.post("/forget-password", forgotPassword);
 router.post("/reset-password/:resetToken", resetPassword);
-
 router.get("/profile", protectedRoute, getProfile);
+router.patch("/profile-update", protectedRoute, updateProfile);
 
 export default router;
