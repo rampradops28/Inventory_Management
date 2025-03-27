@@ -22,24 +22,14 @@ const profileSchema = z.object({
   contact: z.string().optional(),
 });
 
-// Validation schema for password change form
-const passwordSchema = z.object({
-  oldpassword: z.string().min(6, "Password must be at least 6 characters"),
-  newpassword: z.string().min(6, "Password must be at least 6 characters"),
-  confirmpassword: z.string().min(6, "Password must be at least 6 characters"),
-}).refine((data) => data.newpassword === data.confirmpassword, {
-  message: "Passwords do not match",
-  path: ["confirmpassword"],
-});
-
 const reservedBooks = [
-  { id: 1, name: "To Kill a Mockingbird", borrowedDate: "2024-03-01", returnedDate: "2024-03-15" },
-  { id: 2, name: "1984", borrowedDate: "2024-02-20", returnedDate: "2024-03-05" },
+  {id : 1, name: "The Great Gatsby", reservationDate: "2024-03-10", borrowDate: "2024-03-20", isOverdive: "No", status: "Reserved", fine: "Rs. 100"},
+  {id : 2, name: "Pride and Prejudice", reservationDate: "2024-02-25", borrowDate: "2024-03-05", isOverdive: "No", status: "Reserved", fine: "Rs. 200"},
 ];
 
 const pendingBooks = [
-  { id: 1, name: "The Great Gatsby", borrowedDate: "2024-03-10", returnedDate: "2024-03-20", daysOutside: 5, fine: "Rs.100" },
-  { id: 2, name: "Pride and Prejudice", borrowedDate: "2024-02-25", returnedDate: "2024-03-05", daysOutside: 10, fine: "Rs.200" },
+  { id: 1, name: "The Great Gatsby", borrowedDate: "2024-03-10", returnedDate: "2024-03-20" },
+  { id: 2, name: "Pride and Prejudice", borrowedDate: "2024-02-25", returnedDate: "2024-03-05"},
 ];
 
 function Profile() {
@@ -175,71 +165,6 @@ function Profile() {
         </div>
       </section>
 
-      {/* Change Password Section */}
-      <section className="py-10 my-auto dark:bg-gray-900/70">
-        <div className="lg:w-[80%] md:w-[90%] w-[96%] mx-auto flex gap-1">
-          <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto shadow-2xl p-4 rounded-xl h-fit self-center dark:bg-gray-800/40">
-            <h1 className="lg:text-3xl md:text-2xl text-xl font-extrabold mb-2 dark:text-white">
-              Change Password
-            </h1>
-            <h2 className="text-gray-500 text-sm mb-4 dark:text-gray-400">
-              Update your password
-            </h2>
-
-            {/* Password Change Form */}
-            <Form {...passwordForm}>
-              <form onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)} className="space-y-6">
-                <FormField
-                  control={passwordForm.control}
-                  name="oldpassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Old Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Enter old password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={passwordForm.control}
-                  name="newpassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>New Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Enter new password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={passwordForm.control}
-                  name="confirmpassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Confirm new password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button type="submit" variant="default" size="lg" className="w-full">
-                  Change Password
-                </Button>
-              </form>
-            </Form>
-          </div>
-        </div>
-      </section>
-
       {/* Reserved Books Section */}
       <section className="py-10 my-auto dark:bg-gray-900/70">
         <div className="lg:w-[80%] md:w-[90%] w-[96%] mx-auto flex gap-1">
@@ -256,16 +181,22 @@ function Profile() {
                 <thead>
                   <tr>
                     <th className="px-4 py-2 dark:bg-gray-800">Book Name</th>
-                    <th className="px-4 py-2 dark:bg-gray-800">Borrowed Date</th>
-                    <th className="px-4 py-2 dark:bg-gray-800">Returned Date</th>
+                    <th className="px-4 py-2 dark:bg-gray-800">Reservation Date</th>
+                    <th className="px-4 py-2 dark:bg-gray-800">Borrow Date</th>
+                    <th className="px-4 py-2 dark:bg-gray-800">Is Overdive</th>
+                    <th className="px-4 py-2 dark:bg-gray-800">Status</th>
+                    <th className="px-4 py-2 dark:bg-gray-800">Fine</th>
                   </tr>
                 </thead>
                 <tbody>
                   {reservedBooks.map((book) => (
                     <tr key={book.id}>
                       <td className="border px-4 py-2 dark:border-gray-700">{book.name}</td>
-                      <td className="border px-4 py-2 dark:border-gray-700">{book.borrowedDate}</td>
-                      <td className="border px-4 py-2 dark:border-gray-700">{book.returnedDate}</td>
+                      <td className="border px-4 py-2 dark:border-gray-700">{book.reservationDate}</td>
+                      <td className="border px-4 py-2 dark:border-gray-700">{book.borrowDate}</td>
+                      <td className="border px-4 py-2 dark:border-gray-700">{book.isOverdive}</td>
+                      <td className="border px-4 py-2 dark:border-gray-700">{book.status}</td>
+                      <td className="border px-4 py-2 dark:border-gray-700">{book.fine}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -293,8 +224,6 @@ function Profile() {
                     <th className="px-4 py-2 dark:bg-gray-800">Book Name</th>
                     <th className="px-4 py-2 dark:bg-gray-800">Borrowed Date</th>
                     <th className="px-4 py-2 dark:bg-gray-800">Returned Date</th>
-                    <th className="px-4 py-2 dark:bg-gray-800">Days Outside</th>
-                    <th className="px-4 py-2 dark:bg-gray-800">Fine</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -303,8 +232,6 @@ function Profile() {
                       <td className="border px-4 py-2 dark:border-gray-700">{book.name}</td>
                       <td className="border px-4 py-2 dark:border-gray-700">{book.borrowedDate}</td>
                       <td className="border px-4 py-2 dark:border-gray-700">{book.returnedDate}</td>
-                      <td className="border px-4 py-2 dark:border-gray-700">{book.daysOutside} days</td>
-                      <td className="border px-4 py-2 dark:border-gray-700">{book.fine}</td>
                     </tr>
                   ))}
                 </tbody>
