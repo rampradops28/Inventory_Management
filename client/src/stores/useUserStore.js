@@ -148,7 +148,7 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  updateProfile: async (name, email, contact, address) => {
+  updateProfile: async (name, email, contact, address, image) => {
     set({ loading: true });
     try {
       const res = await axiosInstance.patch("/auth/profile-update", {
@@ -156,6 +156,7 @@ export const useUserStore = create((set, get) => ({
         email,
         contact,
         address,
+        image,
       });
       set({ user: res.data.user, loading: false });
       toast.success("Profile updated successfully");
