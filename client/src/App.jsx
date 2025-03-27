@@ -5,10 +5,13 @@ import {
   Route,
   useLocation,
   Navigate,
+  Link,
 } from "react-router-dom";
 import { ThemeProvider } from "./components/ui/theme-provider";
 import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "./components/ui/button";
 
 // pages import
 import Login from "./pages/Login";
@@ -73,6 +76,20 @@ function AppContent() {
     <div className="flex flex-col min-h-screen dark:bg-gray-800 transition-colors duration-300">
       {!shouldHideNavbarFooter && <Navbar />}
       <main className="flex-grow">
+        {user?.is_verified === 0 && location.pathname !== "/verify-email" && (
+          <div className="max-w-screen-lg mx-auto my-4">
+            <Alert>
+              <AlertTitle>Email Verification Required</AlertTitle>
+              <AlertDescription>
+                Please verify your email to access all features. Check your
+                inbox for the verification email.
+                <Link to={"/verify-email"} className="mt-5">
+                  <Button>Verify</Button>
+                </Link>
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
         <Routes>
           {/* Authentication Routes */}
           <Route

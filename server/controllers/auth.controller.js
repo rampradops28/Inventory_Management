@@ -154,7 +154,7 @@ export const verifyEmail = async (req, res, next) => {
     );
 
     const [afterVerified] = await db.query(
-      "SELECT id, email, name, is_verified, role, address, contact, created_at FROM users WHERE id = ?",
+      "SELECT id, email, name, is_verified, role, address, contact, created_at, image_url FROM users WHERE id = ?",
       [user[0].id]
     );
 
@@ -422,21 +422,10 @@ export const googleOAuth = async (req, res, next) => {
 
     // Create new user
     const passwordHash = await bcrypt.hash(generateRandomPassword(), 10);
-    const verificationToken = generateVerificationToken();
-    const verificationTokenExpiresAt = new Date(
-      Date.now() + 24 * 60 * 60 * 1000
-    );
 
     const [insertResult] = await db.query(
-      "INSERT INTO users (email, name, password_hash, verification_token, verification_token_expires_at, image_url) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        email,
-        name,
-        passwordHash,
-        verificationToken,
-        verificationTokenExpiresAt,
-        imageUrl,
-      ]
+      "INSERT INTO users (email, name, password_hash, image_url, is_verified) VALUES (?, ?, ?, ?, ?)",
+      [email, name, passwordHash, imageUrl, 1]
     );
 
     console.log("Insert result:", insertResult);
@@ -459,6 +448,12 @@ export const googleOAuth = async (req, res, next) => {
 
     await storeRefreshToken(newUser.id, refreshToken, next);
     setCookies(res, accessToken, refreshToken);
+    await sendWelcomeEmail(
+      newUser.email,
+      newUser.name,
+      newUser.created_at,
+      next
+    );
 
     const userWithoutPassword = { ...newUser };
     delete userWithoutPassword.password_hash;

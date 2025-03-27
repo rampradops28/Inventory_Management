@@ -6,7 +6,7 @@ import {
 import { ModeToggle } from "../components/mode-toggle";
 import verifyEmailPng from "../assets/images/verify_email.png";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useState } from "react";
 import { useUserStore } from "@/stores/useUserStore";
@@ -19,11 +19,11 @@ function Verify_email() {
 
   const otpSchema = z.string().regex(/^\d+$/, "OTP must contain only numbers");
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     try {
       otpSchema.parse(otp);
       setError("");
-      verifyEmail(otp, navigate);
+      await verifyEmail(otp, navigate);
     } catch (validationError) {
       setError(validationError.errors[0].message);
       e;

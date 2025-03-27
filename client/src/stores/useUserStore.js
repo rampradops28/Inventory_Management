@@ -17,8 +17,9 @@ export const useUserStore = create((set, get) => ({
 
       set({ user: res.data, loading: false });
       toast.success("Signup successful");
+      await get().checkAuth();
       setTimeout(() => {
-        navigate("/verify-email");
+        navigate("/");
       }, 2000);
     } catch (error) {
       set({ loading: false });
@@ -36,9 +37,10 @@ export const useUserStore = create((set, get) => ({
 
       set({ user: res.data, loading: false });
       toast.success("Email verified successfully");
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      await get().checkAuth();
+      console.log("Navigating to home...");
+      navigate("/");
+      console.log("Navigation executed.");
     } catch (error) {
       set({ loading: false });
       toast.error(error.response?.data?.message || "An error occurred");
