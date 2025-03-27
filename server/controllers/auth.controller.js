@@ -328,59 +328,68 @@ export const getProfile = async (req, res, next) => {
 export const googleOAuth = async (req, res, next) => {
   try {
     const { email, name, imageUrl } = req.body;
-    if (!email || !name)
-      return next(errorHandler(400, "Email and Password are required"));
 
+    // Check if the user already exists
     const [existingUser] = await db.query(
       "SELECT * FROM users WHERE email = ?",
       [email]
     );
+
     if (existingUser.length > 0) {
-      const { accessToken, refreshToken } = generateTokens(existingUser[0].id);
-      await storeRefreshToken(existingUser[0].id, refreshToken, next);
+      // If user exists, log them in
+      const user = existingUser[0];
+      const { accessToken, refreshToken } = generateTokens(user[0].id);
+
+      await storeRefreshToken(user[0].id, refreshToken, next);
       setCookies(res, accessToken, refreshToken);
 
-      const userWithoutPassword = { ...existingUser[0] };
+      const userWithoutPassword = { ...user[0] };
       delete userWithoutPassword.password_hash;
 
-      res.status(200).json({ user: userWithoutPassword });
+      return res.status(200).json({
+        message: "Login successful",
+        user: {
+          userWithoutPassword,
+        },
+        token,
+        refreshToken,
+      });
     }
 
-    const password = crypto.randomBytes(20).toString("hex");
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const token = generateVerificationToken();
+    const passwordHash = await bcrypt.hash(generateRandomPassword(), 10);
+    const verificationToken = generateVerificationToken();
+    const verificationTokenExpiresAt = new Date(
+      Date.now() + 24 * 60 * 60 * 1000
+    );
 
     const [result] = await db.query(
-      "INSERT INTO users (email, name, password_hash, verification_token, verification_token_expires_at, image_url) VALUES (?, ?, ?, ?, ?,?)",
+      "INSERT INTO users (email, name, password_hash, verification_token, verification_token_expires_at, image_url) VALUES (?, ?, ?, ?, ?, ?)",
       [
         email,
         name,
-        hashedPassword,
-        token,
-        new Date(Date.now() + 24 * 60 * 60 * 1000),
-        imageUrl || null,
+        passwordHash,
+        verificationToken,
+        verificationTokenExpiresAt,
+        imageUrl,
       ]
     );
 
-    const userId = result.insertId;
+    const [newUser] = await db.query("SELECT * FROM users WHERE id = ?", [
+      result.insertId,
+    ]);
 
-    const [createdUser] = await db.query(
-      "SELECT id, email, name, is_verified, role, address, contact, created_at, image_url FROM users WHERE id = ?",
-      [userId]
-    );
+    const { accessToken, refreshToken } = generateTokens(newUser[0].id);
 
-    const { accessToken, refreshToken } = generateTokens(userId);
-
-    await storeRefreshToken(userId, refreshToken, next);
-
+    await storeRefreshToken(newUser[0].id, refreshToken, next);
     setCookies(res, accessToken, refreshToken);
+    const userWithoutPassword = { ...user[0] };
+    delete userWithoutPassword.password_hash;
 
-    await sendVerificationEmail(email, token, next);
-
-    res.status(201).json({ user: createdUser[0] });
+    res.status(201).json({
+      user: userWithoutPassword,
+    });
   } catch (error) {
-    console.log(error);
+    console.error("Error in googleOAuth:", error);
     next(errorHandler(500, "Internal Server Error"));
   }
 };
