@@ -25,16 +25,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useBookStore } from "@/stores/useBookStore";
+import { Textarea } from "@/components/ui/textarea";
 
 function AddBookModal({ onClose }) {
+  const { addBook, loading } = useBookStore();
   const formSchema = z.object({
     title: z.string().min(1, { message: "Title is required" }),
     author: z.string().min(1, { message: "Author is required" }),
     category: z.string().min(1, { message: "Category is required" }),
     availableCopies: z
       .number()
-      .min(1, { message: "Available copies must be at least 1" }),
-    image: z.any(),
+      .min(1, { message: "Available copies are required" }),
+    description: z.string().min(5, { message: "Description is required" }),
+    location: z.string().min(1, { message: "Location is required" }),
+    image: z.any().refine((image) => image !== null, {
+      message: "Image is required",
+    }),
   });
 
   const form = useForm({
@@ -44,25 +51,43 @@ function AddBookModal({ onClose }) {
       author: "",
       category: "",
       availableCopies: 1,
+      description: "",
+      location: "",
       image: null,
     },
   });
 
   const [previewImage, setPreviewImage] = useState(null);
 
-  const onSubmit = (data) => {
-    console.log("Book Data:", data);
-    if (data.image && data.image[0]) {
-      console.log("Uploaded Image:", data.image[0]);
-    }
-    onClose();
+  const onSubmit = async (formData) => {
+    console.log(formData);
+    await addBook(formData);
+
+    // onClose();
   };
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setPreviewImage(URL.createObjectURL(file)); // show image preview
-      form.setValue("image", event.target.files); // Set the file in the form data
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+
+    if (files.length > 0) {
+      const file = files[0];
+
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = () => {
+          const base64Image = reader.result;
+          setPreviewImage(base64Image);
+          form.setValue("image", base64Image);
+          resolve(base64Image);
+        };
+
+        reader.onerror = (error) => {
+          console.error("Error converting image to base64:", error);
+          reject(error);
+        };
+      });
     }
   };
 
@@ -144,6 +169,45 @@ function AddBookModal({ onClose }) {
                       type="number"
                       placeholder="Enter number of copies"
                       {...field}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)} // Convert to number
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Description Field */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      type="text"
+                      placeholder="Enter a short description"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Book Location */}
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Book Location</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Enter the location of the book"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -162,7 +226,7 @@ function AddBookModal({ onClose }) {
                     <Input
                       type="file"
                       accept="image/*"
-                      onChange={handleImageChange}
+                      onChange={handleImageUpload}
                     />
                   </FormControl>
                   {previewImage && (
@@ -178,7 +242,7 @@ function AddBookModal({ onClose }) {
             />
 
             <Button type="submit" variant="default" className="w-full">
-              Add Book
+              {loading ? "Adding..." : "Add Book"}
             </Button>
           </form>
         </Form>

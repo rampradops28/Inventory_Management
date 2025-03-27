@@ -47,7 +47,7 @@ function BooksTable() {
               <TableCell>
                 <img
                   src={
-                    book.image ||
+                    book.image_url ||
                     "https://png.pngtree.com/png-clipart/20220503/ourmid/pngtree-stack-of-school-books-png-image_4561890.png"
                   }
                   alt={book.title}

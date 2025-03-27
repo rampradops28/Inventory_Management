@@ -13,6 +13,8 @@ export const createBook = async (req, res, next) => {
     const { title, category, description, quantity, location, image, author } =
       req.body;
 
+    console.log(req.body);
+
     if (!title || !category || !description || !author) {
       return next(
         errorHandler(
@@ -49,7 +51,7 @@ export const createBook = async (req, res, next) => {
     ]);
 
     res.status(201).json({
-      success: true,
+      message: "Book created successfully",
       book: createdBook[0],
     });
   } catch (error) {
@@ -224,9 +226,7 @@ export const deleteBook = async (req, res, next) => {
 // get all books
 export const getAllBooks = async (req, res, next) => {
   try {
-    console.log("Getting all books");
     const [books] = await db.execute("SELECT * FROM books");
-    console.log("Books:", books);
 
     res.status(200).json({
       books: books,

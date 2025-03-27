@@ -35,4 +35,27 @@ export const useBookStore = create((set, get) => ({
       console.log("error occurred in delete book for admin", error.response);
     }
   },
+
+  addBook: async (data) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.post("/books", {
+        title: data.title,
+        category: data.category,
+        description: data.description,
+        quantity: data.availableCopies,
+        location: data.location,
+        image: data.image,
+        author: data.author,
+      });
+      set({ loading: false });
+      get().getAllBooks();
+      toast.success(res.data.message);
+    } catch (error) {
+      set({ loading: false });
+      console.log(error);
+      toast.error(error.response?.data?.message || "An error occurred");
+      console.log("error occurred in add book for admin", error.response);
+    }
+  },
 }));
