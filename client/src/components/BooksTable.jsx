@@ -16,9 +16,14 @@ function BooksTable() {
   const { getAllBooks, loading, books, deleteBook } = useBookStore();
   const [selectedBook, setSelectedBook] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     getAllBooks();
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const handleUpdate = async (book) => {
     setSelectedBook(book);

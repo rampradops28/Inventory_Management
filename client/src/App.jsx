@@ -31,7 +31,7 @@ import BookView from "./pages/Book_view";
 // app components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import LoadingSpinner from "./components/LoadingSpinner";
+import LoadingScreen from "./components/LoadingScreen";
 
 function App() {
   const { checkAuth, checkingAuth } = useUserStore();
@@ -41,7 +41,7 @@ function App() {
   }, [checkAuth]);
 
   if (checkingAuth) {
-    return <LoadingSpinner />;
+    return <LoadingScreen />;
   }
 
   return (
@@ -64,6 +64,7 @@ function AppContent() {
     "/signup",
     "/forget-password",
     "/reset-password",
+    "/dashboard",
   ];
 
   const shouldHideNavbarFooter = hideNavbarFooterRoutes.some(

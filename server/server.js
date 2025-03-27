@@ -8,6 +8,7 @@ import cors from "cors";
 import authRotes from "./routes/auth.route.js";
 import bookRoutes from "./routes/book.route.js";
 import reservationRoutes from "./routes/reservation.route.js";
+import adminRoutes from "./routes/admin.route.js";
 
 // load environment variables
 dotenv.config();
@@ -28,6 +29,7 @@ app.use(
 app.use("/api/auth", authRotes);
 app.use("/api/books", bookRoutes);
 app.use("/api/reservations", reservationRoutes);
+app.use("/api/admin", adminRoutes);
 
 const port = process.env.PORT || 3000;
 

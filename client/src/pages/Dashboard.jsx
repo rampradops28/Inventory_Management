@@ -3,6 +3,8 @@ import { useState } from "react";
 import UsersTab from "../components/UsersTab";
 import BooksTab from "../components/BooksTab";
 import { useNavigate } from "react-router";
+import { useBookStore } from "@/stores/useBookStore";
+import { useAdminStore } from "@/stores/useAdminStore";
 
 function Dashboard() {
   const navigate = useNavigate();

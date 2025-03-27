@@ -24,7 +24,6 @@ function Login() {
   const { login, loading } = useUserStore();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  // schema for form validation
   const formSchema = z.object({
     email: z.string().email({
       message: "Please enter a valid email address",
@@ -34,7 +33,6 @@ function Login() {
     }),
   });
 
-  // Initialize the form with react-hook-form and zod
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,7 +41,6 @@ function Login() {
     },
   });
 
-  // Handle submission
   const onSubmit = async (data) => {
     login(data.email, data.password, navigate);
   };

@@ -40,7 +40,7 @@ function UpdateBookModal({ book, onClose }) {
       .min(1, { message: "Available copies are required" }),
     description: z.string().min(5, { message: "Description is required" }),
     location: z.string().min(1, { message: "Location is required" }),
-    image: z.any().optional(), // Image is optional for updates
+    image: z.any().optional(),
   });
 
   const form = useForm({
