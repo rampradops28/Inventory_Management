@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { IoIosSearch } from "react-icons/io";
 import {
@@ -9,152 +9,23 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
-const books = [
-  {
-    id: 1,
-    title: "Gone with the Wind",
-    author: "Margaret Mitchell",
-    category: "Fiction",
-    image: "/assets/images/fiction1.png",
-    description:
-      "A historical novel set in the American South during the Civil War.",
-  },
-  {
-    id: 2,
-    title: "The Kite Runner",
-    author: "Khaled Hosseini",
-    category: "Fiction",
-    image: "/assets/images/fiction2.png",
-    description: "A story of friendship and redemption set in Afghanistan.",
-  },
-  {
-    id: 3,
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
-    category: "Fiction",
-    image: "/assets/images/fiction3.png",
-    description: "A novel about racial injustice in the Deep South.",
-  },
-  {
-    id: 4,
-    title: "1984",
-    author: "George Orwell",
-    category: "Fiction",
-    image: "/assets/images/fiction4.png",
-    description: "A dystopian novel about totalitarianism and surveillance.",
-  },
-
-  {
-    id: 5,
-    title: "Into the Wild",
-    author: "Jon Krakauer",
-    category: "Non-Fiction",
-    image: "/assets/images/non-fiction1.png",
-    description:
-      "The true story of Christopher McCandless and his journey into the Alaskan wilderness.",
-  },
-  {
-    id: 6,
-    title: "Educated",
-    author: "Tara Westover",
-    category: "Non-Fiction",
-    image: "/assets/images/non-fiction2.png",
-    description: "A memoir about growing up in a strict and abusive household.",
-  },
-  {
-    id: 7,
-    title: "Sapiens",
-    author: "Yuval Noah Harari",
-    category: "Non-Fiction",
-    image: "/assets/images/non-fiction3.png",
-    description: "A brief history of humankind.",
-  },
-  {
-    id: 8,
-    title: "Becoming",
-    author: "Michelle Obama",
-    category: "Non-Fiction",
-    image: "/assets/images/non-fiction4.png",
-    description: "The memoir of former First Lady Michelle Obama.",
-  },
-
-  {
-    id: 9,
-    title: "A Brief History of Time",
-    author: "Stephen Hawking",
-    category: "Science",
-    image: "/assets/images/science1.png",
-    description: "An exploration of the universe's origins and structure.",
-  },
-  {
-    id: 10,
-    title: "The Selfish Gene",
-    author: "Richard Dawkins",
-    category: "Science",
-    image: "/assets/images/science2.png",
-    description: "A book about evolution and natural selection.",
-  },
-  {
-    id: 11,
-    title: "The Gene: An Intimate History",
-    author: "Siddhartha Mukherjee",
-    category: "Science",
-    image: "/assets/images/science3.png",
-    description: "A history of the gene and its impact on humanity.",
-  },
-  {
-    id: 12,
-    title: "Cosmos",
-    author: "Carl Sagan",
-    category: "Science",
-    image: "/assets/images/science4.png",
-    description: "A journey through the universe and our place in it.",
-  },
-
-  // History Books
-  {
-    id: 13,
-    title: "The Diary of a Young Girl",
-    author: "Anne Frank",
-    category: "History",
-    image: "/assets/images/history1.png",
-    description: "The diary of Anne Frank during the Holocaust.",
-  },
-  {
-    id: 14,
-    title: "Guns, Germs, and Steel",
-    author: "Jared Diamond",
-    category: "History",
-    image: "/assets/images/history2.png",
-    description: "A book about the factors that shaped human history.",
-  },
-  {
-    id: 15,
-    title: "The Silk Roads",
-    author: "Peter Frankopan",
-    category: "History",
-    image: "/assets/images/history3.png",
-    description:
-      "A new history of the world through the lens of the Silk Roads.",
-  },
-  {
-    id: 16,
-    title: "Team of Rivals",
-    author: "Doris Kearns Goodwin",
-    category: "History",
-    image: "/assets/images/history4.png",
-    description: "The political genius of Abraham Lincoln.",
-  },
-];
+import { useBookStore } from "@/stores/useBookStore";
 
 function BookCategory() {
+  const { books, loading, getCategoryBooks, searchBooks } = useBookStore();
   const { categoryName } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+  useEffect(() => {
+    getCategoryBooks(categoryName);
+  }, [categoryName, getCategoryBooks]);
+
+  const handleSearchChange = async (event) => {
+    const searchValue = event.target.value;
+    setSearchTerm(searchValue);
+
+    await searchBooks(searchValue);
   };
 
   const filteredBooks = books.filter(
@@ -197,7 +68,7 @@ function BookCategory() {
             >
               <CardHeader className="p-0">
                 <img
-                  src={book.image}
+                  src={book.image_url}
                   alt={book.title}
                   className="w-full h-48 object-cover rounded-t-lg"
                 />
@@ -223,7 +94,8 @@ function BookCategory() {
         ) : (
           <div className="col-span-full text-center py-12">
             <p className="text-gray-500 dark:text-gray-400">
-              No books found in this category.
+              No books found Please try a different search term or check back
+              later.
             </p>
           </div>
         )}

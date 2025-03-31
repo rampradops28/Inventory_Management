@@ -25,7 +25,7 @@ function BooksTab() {
         size="lg"
         className="fixed bottom-10 right-10 "
       >
-        <Plus className="w-5 h-5" /> {/* Plus Icon */}
+        <Plus className="w-5 h-5" />
         <span>Add Book</span>
       </Button>
 

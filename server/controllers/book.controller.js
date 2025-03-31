@@ -101,13 +101,13 @@ export const searchBooks = async (req, res, next) => {
 
     // Add filtering by title if provided
     if (title) {
-      query += " AND title LIKE ?";
+      query += " OR title LIKE ?";
       queryParams.push(`%${title}%`);
     }
 
     // Add filtering by author if provided
     if (author) {
-      query += " AND author LIKE ?";
+      query += " OR author LIKE ?";
       queryParams.push(`%${author}%`);
     }
 

@@ -85,4 +85,31 @@ export const useBookStore = create((set, get) => ({
       toast.error(error.response?.data?.message || "An error occurred");
     }
   },
+
+  getCategoryBooks: async (category) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.get(`/books/search?category=${category}`);
+      set({ books: res.data.books, loading: false });
+      console.log(res.data.books);
+    } catch (error) {
+      set({ loading: false });
+      console.log(error);
+    }
+  },
+
+  searchBooks: async (searchTerm) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.get(
+        `/books/search?title=${searchTerm}&author=${searchTerm}`
+      );
+      set({ books: res.data.books, loading: false });
+      console.log(res.data.books);
+    } catch (error) {
+      set({ loading: false });
+      console.log(error);
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  },
 }));
