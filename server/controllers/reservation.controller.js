@@ -194,6 +194,22 @@ export const markAsBorrowed = async (req, res, next) => {
       return next(errorHandler(400, "Reservation ID is required"));
     }
 
+    const [reservation] = await db.execute(
+      "SELECT status FROM reservations WHERE id = ?",
+      [reservation_id]
+    );
+
+    if (reservation.length === 0) {
+      return next(errorHandler(404, "Reservation not found"));
+    }
+
+    if (reservation[0].status === "borrowed") {
+      return next(
+        errorHandler(400, "Reservation is already marked as borrowed")
+      );
+    }
+
+    // Update status to 'borrowed'
     const updateQuery = `
       UPDATE reservations 
       SET status = 'borrowed' 
@@ -214,7 +230,6 @@ export const markAsBorrowed = async (req, res, next) => {
     `;
     await db.execute(insertQuery, [reservation_id]);
 
-    // Fetch the borrowed book details
     const selectQuery = `
       SELECT 
         bh.id AS borrow_id, 
@@ -236,6 +251,7 @@ export const markAsBorrowed = async (req, res, next) => {
     ]);
 
     res.status(200).json({
+      message: "Reservation marked as borrowed successfully",
       borrowedBook: borrowedBook[0],
     });
   } catch (error) {
@@ -285,6 +301,32 @@ export const markAsCompleted = async (req, res, next) => {
 
     if (!reservation_id) {
       return next(errorHandler(400, "Reservation ID is required"));
+    }
+
+    const [reservation] = await db.execute(
+      "SELECT status FROM reservations WHERE id = ?",
+      [reservation_id]
+    );
+
+    if (reservation.length === 0) {
+      return next(errorHandler(404, "Reservation not found"));
+    }
+
+    const currentStatus = reservation[0].status;
+
+    if (currentStatus === "completed") {
+      return next(
+        errorHandler(400, "Reservation is already marked as completed")
+      );
+    }
+
+    if (currentStatus === "pending") {
+      return next(
+        errorHandler(
+          400,
+          "Reservation must be marked as borrowed before completing"
+        )
+      );
     }
 
     // Update reservation status to 'completed'

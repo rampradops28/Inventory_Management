@@ -2,9 +2,8 @@ import Dashboard_Sidebar from "../components/Dashboard_sidebar";
 import { useState } from "react";
 import UsersTab from "../components/UsersTab";
 import BooksTab from "../components/BooksTab";
+import ReservationTab from "@/components/ReservationTab";
 import { useNavigate } from "react-router";
-import { useBookStore } from "@/stores/useBookStore";
-import { useAdminStore } from "@/stores/useAdminStore";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -24,6 +23,8 @@ function Dashboard() {
         return <UsersTab />;
       case "Books":
         return <BooksTab />;
+      case "Reservations":
+        return <ReservationTab />;
       default:
         return <BooksTab />;
     }

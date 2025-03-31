@@ -94,13 +94,14 @@ export const register = async (req, res, next) => {
 
     // Insert the new user into the database
     const [result] = await db.query(
-      "INSERT INTO users (email, name, password_hash, verification_token, verification_token_expires_at) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO users (email, name, password_hash, verification_token, verification_token_expires_at,image_url) VALUES (?, ?, ?, ?, ?,?)",
       [
         email,
         name,
         hashedPassword,
         token,
         new Date(Date.now() + 24 * 60 * 60 * 1000),
+        "https://t3.ftcdn.net/jpg/03/94/89/90/360_F_394899054_4TMgw6eiMYUfozaZU3Kgr5e0LdH4ZrsU.jpg",
       ]
     );
 

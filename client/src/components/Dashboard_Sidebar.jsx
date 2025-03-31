@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Home, Inbox } from "lucide-react";
+import { Calendar, Home, Inbox, BookCheck } from "lucide-react";
 
 import {
   Sidebar,
@@ -27,6 +27,11 @@ function Dashboard_Sidebar({ setActiveTab, activeTab }) {
     {
       title: "Users",
       icon: Calendar,
+    },
+
+    {
+      title: "Reservations",
+      icon: BookCheck,
     },
   ];
 

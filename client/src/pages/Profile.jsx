@@ -301,9 +301,7 @@ function Profile() {
                         {reservation.title}
                       </td>
                       <td className="border px-4 py-2 dark:border-gray-700">
-                        {new Date(
-                          reservation.reservation_date
-                        ).toLocaleDateString()}
+                        {new Date(reservation.reservation_date).toDateString()}
                       </td>
                       <td className="border px-4 py-2 dark:border-gray-700">
                         {reservation.status === "borrowed"
@@ -313,7 +311,7 @@ function Profile() {
                                   reservation.reservation_date
                                 ).getDate() + 7
                               )
-                            ).toLocaleDateString()
+                            ).toDateString()
                           : "Not Applicable"}
                       </td>
                       <td className="border px-4 py-2 dark:border-gray-700">
