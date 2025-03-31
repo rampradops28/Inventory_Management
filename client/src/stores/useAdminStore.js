@@ -5,6 +5,7 @@ import axiosInstance from "../lib/axios";
 export const useAdminStore = create((set, get) => ({
   users: [],
   reservations: [],
+  borrowedBooks: [],
   loading: false,
 
   getAllUsers: async () => {
@@ -69,6 +70,22 @@ export const useAdminStore = create((set, get) => ({
       set({ loading: false });
       console.log(
         "error occurred in mark reservation as completed",
+        error.response
+      );
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  },
+
+  getBorrowedBooks: async () => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.get("/reservations/borrowed");
+      set({ borrowedBooks: res.data.borrowedBooks, loading: false });
+      console.log("borrowed books", res.data.borrowedBooks);
+    } catch (error) {
+      set({ loading: false });
+      console.log(
+        "error occurred in get borrowed books for admin",
         error.response
       );
       toast.error(error.response?.data?.message || "An error occurred");

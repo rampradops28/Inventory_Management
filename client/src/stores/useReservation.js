@@ -41,7 +41,7 @@ export const useReservationStore = create((set, get) => ({
     try {
       const res = await axiosInstance.get("/reservations/history");
       set({ reservationHistory: res.data.borrowHistory, loading: false });
-      console.log("user borrow history", res.data.borrowHistory);
+      console.log("borrow history", res.data.borrowHistory);
     } catch (error) {
       set({ loading: false });
       console.log("error occurred in get user borrow history", error);

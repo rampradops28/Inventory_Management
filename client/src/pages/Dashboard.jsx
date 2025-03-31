@@ -3,6 +3,7 @@ import { useState } from "react";
 import UsersTab from "../components/UsersTab";
 import BooksTab from "../components/BooksTab";
 import ReservationTab from "@/components/ReservationTab";
+import BorrowedBooksTab from "@/components/BorrowedBooksTab";
 import { useNavigate } from "react-router";
 
 function Dashboard() {
@@ -25,6 +26,8 @@ function Dashboard() {
         return <BooksTab />;
       case "Reservations":
         return <ReservationTab />;
+      case "Borrowed Books":
+        return <BorrowedBooksTab />;
       default:
         return <BooksTab />;
     }

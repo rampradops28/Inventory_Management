@@ -352,22 +352,24 @@ function Profile() {
                   </tr>
                 </thead>
                 <tbody>
-                  {reservationHistory.map((borrowed) => (
-                    <tr key={borrowed.borrow_id}>
-                      <td className="border px-4 py-2 dark:border-gray-700">
-                        {borrowed.title}
-                      </td>
-                      <td className="border px-4 py-2 dark:border-gray-700">
-                        {new Date(borrowed.borrowed_date).toDateString()}
-                      </td>
-                      <td className="border px-4 py-2 dark:border-gray-700">
-                        {new Date(borrowed.returned_date).toDateString()}
-                      </td>
-                      <td className="border px-4 py-2 dark:border-gray-700">
-                        {borrowed.fine}
-                      </td>
-                    </tr>
-                  ))}
+                  {reservationHistory
+                    .filter((borrowed) => borrowed.returned_date !== null) // Filter out records with null return date
+                    .map((borrowed) => (
+                      <tr key={borrowed.borrow_id}>
+                        <td className="border px-4 py-2 dark:border-gray-700">
+                          {borrowed.title}
+                        </td>
+                        <td className="border px-4 py-2 dark:border-gray-700">
+                          {new Date(borrowed.borrowed_date).toDateString()}
+                        </td>
+                        <td className="border px-4 py-2 dark:border-gray-700">
+                          {new Date(borrowed.returned_date).toDateString()}
+                        </td>
+                        <td className="border px-4 py-2 dark:border-gray-700">
+                          {borrowed.fine}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Home, Inbox, BookCheck } from "lucide-react";
+import { Calendar, Home, Inbox, BookCheck, BookUser } from "lucide-react";
 
 import {
   Sidebar,
@@ -32,6 +32,11 @@ function Dashboard_Sidebar({ setActiveTab, activeTab }) {
     {
       title: "Reservations",
       icon: BookCheck,
+    },
+
+    {
+      title: "Borrowed Books",
+      icon: BookUser,
     },
   ];
 
