@@ -169,7 +169,7 @@ export const verifyEmail = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    console.log("login details", email, password);
+
     if (!email || !password)
       return next(errorHandler(400, "Email and Password are required"));
 
@@ -220,6 +220,7 @@ export const logout = async (req, res, next) => {
 
 export const refreshToken = async (req, res, next) => {
   try {
+    console.log("refresh token called");
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) return next(errorHandler(401, "Unauthorized"));
 

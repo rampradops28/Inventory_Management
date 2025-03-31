@@ -122,7 +122,7 @@ export const useUserStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/logout");
       set({ user: null, loading: false });
-      navigate("/login");
+      if (navigate) navigate("/login"); // Make navigate optional
     } catch (error) {
       set({ loading: false });
       console.log("error in logout", error);
@@ -169,3 +169,35 @@ export const useUserStore = create((set, get) => ({
     }
   },
 }));
+
+let refreshPromise = null;
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // If a refresh is already in progress, wait for it to complete
+        if (refreshPromise) {
+          await refreshPromise;
+          return axiosInstance(originalRequest);
+        }
+
+        // Start a new refresh process
+        refreshPromise = useUserStore.getState().refreshToken();
+        await refreshPromise;
+        refreshPromise = null;
+
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        // If refresh fails, logout without navigation
+        useUserStore.getState().logout(); // This should work if you've made navigate optional
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  }
+);

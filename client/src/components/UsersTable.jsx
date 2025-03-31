@@ -37,7 +37,7 @@ function UsersTable({}) {
             <TableRow key={user._id}>
               <TableCell className="font-medium">{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
-              <TableCell>{user.created_at}</TableCell>
+              <TableCell>{new Date(user.created_at).toDateString()}</TableCell>
               <TableCell>{user.contact || "To be updated"}</TableCell>
               <TableCell>{user.address || "To be updated"}</TableCell>
               <TableCell>
