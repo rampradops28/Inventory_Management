@@ -16,26 +16,13 @@ import userPng from "../assets/images/user.png";
 import { useUserStore } from "@/stores/useUserStore";
 import { useReservationStore } from "@/stores/useReservation";
 
-const pendingBooks = [
-  {
-    id: 1,
-    name: "The Great Gatsby",
-    borrowedDate: "2024-03-10",
-    returnedDate: "2024-03-20",
-  },
-  {
-    id: 2,
-    name: "Pride and Prejudice",
-    borrowedDate: "2024-02-25",
-    returnedDate: "2024-03-05",
-  },
-];
-
 function Profile() {
   const {
     reservations,
     loading: loadReservations,
     getUserReservations,
+    getUserBorrowHistory,
+    reservationHistory,
   } = useReservationStore();
   const { user, updateProfile, loading } = useUserStore();
   const [isEditing, setIsEditing] = useState(false);
@@ -43,7 +30,8 @@ function Profile() {
 
   useEffect(() => {
     getUserReservations();
-  }, [getUserReservations]);
+    getUserBorrowHistory();
+  }, []);
 
   const profileSchema = z.object({
     name: z.string().min(5, "Name must be at least 5 characters"),
@@ -360,19 +348,23 @@ function Profile() {
                     <th className="px-4 py-2 dark:bg-gray-800">
                       Returned Date
                     </th>
+                    <th className="px-4 py-2 dark:bg-gray-800">Fine</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pendingBooks.map((book) => (
-                    <tr key={book.id}>
+                  {reservationHistory.map((borrowed) => (
+                    <tr key={borrowed.borrow_id}>
                       <td className="border px-4 py-2 dark:border-gray-700">
-                        {book.name}
+                        {borrowed.title}
                       </td>
                       <td className="border px-4 py-2 dark:border-gray-700">
-                        {book.borrowedDate}
+                        {new Date(borrowed.borrowed_date).toDateString()}
                       </td>
                       <td className="border px-4 py-2 dark:border-gray-700">
-                        {book.returnedDate}
+                        {new Date(borrowed.returned_date).toDateString()}
+                      </td>
+                      <td className="border px-4 py-2 dark:border-gray-700">
+                        {borrowed.fine}
                       </td>
                     </tr>
                   ))}

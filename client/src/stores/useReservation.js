@@ -4,6 +4,7 @@ import axiosInstance from "../lib/axios";
 
 export const useReservationStore = create((set, get) => ({
   reservations: [],
+  reservationHistory: [],
   reservation: null,
   loading: false,
 
@@ -12,7 +13,6 @@ export const useReservationStore = create((set, get) => ({
     try {
       const res = await axiosInstance.get("/reservations/");
       set({ reservations: res.data.reservations, loading: false });
-      console.log("user reservations", res.data.reservations);
     } catch (error) {
       set({ loading: false });
       console.log("error occurred in get user reservations", error);
@@ -32,6 +32,19 @@ export const useReservationStore = create((set, get) => ({
     } catch (error) {
       set({ loading: false });
       console.log("error occurred in create reservation", error);
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  },
+
+  getUserBorrowHistory: async () => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.get("/reservations/history");
+      set({ reservationHistory: res.data.borrowHistory, loading: false });
+      console.log("user borrow history", res.data.borrowHistory);
+    } catch (error) {
+      set({ loading: false });
+      console.log("error occurred in get user borrow history", error);
       toast.error(error.response?.data?.message || "An error occurred");
     }
   },
