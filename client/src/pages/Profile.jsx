@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,27 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import userPng from "../assets/images/user.png";
 import { useUserStore } from "@/stores/useUserStore";
-
-const reservedBooks = [
-  {
-    id: 1,
-    name: "The Great Gatsby",
-    reservationDate: "2024-03-10",
-    borrowDate: "2024-03-20",
-    isOverdive: "No",
-    status: "Reserved",
-    fine: "Rs. 100",
-  },
-  {
-    id: 2,
-    name: "Pride and Prejudice",
-    reservationDate: "2024-02-25",
-    borrowDate: "2024-03-05",
-    isOverdive: "No",
-    status: "Reserved",
-    fine: "Rs. 200",
-  },
-];
+import { useReservationStore } from "@/stores/useReservation";
 
 const pendingBooks = [
   {
@@ -52,9 +32,18 @@ const pendingBooks = [
 ];
 
 function Profile() {
+  const {
+    reservations,
+    loading: loadReservations,
+    getUserReservations,
+  } = useReservationStore();
   const { user, updateProfile, loading } = useUserStore();
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState(user?.image_url || userPng);
+
+  useEffect(() => {
+    getUserReservations();
+  }, [getUserReservations]);
 
   const profileSchema = z.object({
     name: z.string().min(5, "Name must be at least 5 characters"),
@@ -297,34 +286,50 @@ function Profile() {
                   <tr>
                     <th className="px-4 py-2 dark:bg-gray-800">Book Name</th>
                     <th className="px-4 py-2 dark:bg-gray-800">
-                      Reservation Date
+                      Reserved Date
                     </th>
-                    <th className="px-4 py-2 dark:bg-gray-800">Borrow Date</th>
+                    <th className="px-4 py-2 dark:bg-gray-800">Return Date</th>
                     <th className="px-4 py-2 dark:bg-gray-800">Is Overdive</th>
                     <th className="px-4 py-2 dark:bg-gray-800">Status</th>
                     <th className="px-4 py-2 dark:bg-gray-800">Fine</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {reservedBooks.map((book) => (
-                    <tr key={book.id}>
+                  {reservations.map((reservation) => (
+                    <tr key={reservation.id}>
                       <td className="border px-4 py-2 dark:border-gray-700">
-                        {book.name}
+                        {reservation.title}
                       </td>
                       <td className="border px-4 py-2 dark:border-gray-700">
-                        {book.reservationDate}
+                        {new Date(
+                          reservation.reservation_date
+                        ).toLocaleDateString()}
                       </td>
                       <td className="border px-4 py-2 dark:border-gray-700">
-                        {book.borrowDate}
+                        {reservation.status === "borrowed"
+                          ? new Date(
+                              new Date(reservation.reservation_date).setDate(
+                                new Date(
+                                  reservation.reservation_date
+                                ).getDate() + 7
+                              )
+                            ).toLocaleDateString()
+                          : "Not Applicable"}
                       </td>
                       <td className="border px-4 py-2 dark:border-gray-700">
-                        {book.isOverdive}
+                        {reservation.status === "borrowed" &&
+                        new Date() >
+                          new Date(reservation.reservation_date).setDate(
+                            new Date(reservation.reservation_date).getDate() + 7
+                          )
+                          ? "Overdue"
+                          : "Not Applicable"}
                       </td>
                       <td className="border px-4 py-2 dark:border-gray-700">
-                        {book.status}
+                        {reservation.status}
                       </td>
                       <td className="border px-4 py-2 dark:border-gray-700">
-                        {book.fine}
+                        {reservation.fine}
                       </td>
                     </tr>
                   ))}
@@ -335,12 +340,12 @@ function Profile() {
         </div>
       </section>
 
-      {/* Pending Books Section */}
+      {/* Borrowed Books Section */}
       <section className="py-10 my-auto dark:bg-gray-900/70">
         <div className="lg:w-[80%] md:w-[90%] w-[96%] mx-auto flex gap-1">
           <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto shadow-2xl p-4 rounded-xl h-fit self-center dark:bg-gray-800/40">
             <h1 className="lg:text-3xl md:text-2xl text-xl font-extrabold mb-2 dark:text-white">
-              Pending Books
+              Borrowed History
             </h1>
             <h2 className="text-gray-500 text-sm mb-4 dark:text-gray-400">
               Books you have borrowed

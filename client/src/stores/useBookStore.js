@@ -4,6 +4,7 @@ import axiosInstance from "../lib/axios";
 
 export const useBookStore = create((set, get) => ({
   books: [],
+  book: null,
   loading: false,
 
   getAllBooks: async () => {
@@ -106,6 +107,18 @@ export const useBookStore = create((set, get) => ({
       );
       set({ books: res.data.books, loading: false });
       console.log(res.data.books);
+    } catch (error) {
+      set({ loading: false });
+      console.log(error);
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  },
+
+  getBookById: async (id) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.get(`/books/${id}`);
+      set({ book: res.data.book, loading: false });
     } catch (error) {
       set({ loading: false });
       console.log(error);

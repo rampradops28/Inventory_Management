@@ -1,82 +1,77 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/stores/useUserStore";
-
-const books = [
-  {
-    id: 1,
-    title: "Gone with the Wind",
-    author: "Margaret Mitchell",
-    category: "Fiction",
-    image:
-      "https://upload.wikimedia.org/wikipedia/en/6/66/Gone_with_the_Wind_cover.jpg",
-    description:
-      "A historical novel set in the American South during the Civil War.",
-  },
-  {
-    id: 2,
-    title: "The Kite Runner",
-    author: "Khaled Hosseini",
-    category: "Fiction",
-    image: "https://upload.wikimedia.org/wikipedia/en/d/dc/Kite_runner.jpg",
-    description: "A story of friendship and redemption set in Afghanistan.",
-  },
-  {
-    id: 3,
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
-    category: "Fiction",
-    image:
-      "https://upload.wikimedia.org/wikipedia/en/7/79/To_Kill_a_Mockingbird.JPG",
-    description: "A novel about racial injustice in the Deep South.",
-  },
-];
+import { useBookStore } from "@/stores/useBookStore";
+import LoadingSpinner from "@/components/LoadingScreen";
+import { useReservationStore } from "@/stores/useReservation";
 
 function BookView() {
+  const { loading: createLoading, createReservation } = useReservationStore();
+  const { book, getBookById, loading } = useBookStore();
   const { user } = useUserStore();
   const { bookId } = useParams();
-  const book = books.find((b) => b.id === parseInt(bookId));
+
+  useEffect(() => {
+    getBookById(bookId);
+  }, [bookId, getBookById]);
+
+  const handleSubmit = async (id) => {
+    await createReservation(id);
+  };
+
+  if (loading) return <LoadingSpinner />;
 
   if (!book) {
-    return <p className="text-center text-white">Book not found.</p>;
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-900">
+        <p className="text-xl text-gray-400">Book not found.</p>
+      </div>
+    );
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen dark:bg-gray-800 transition-colors duration-300">
-      <Card className="max-w-2xl w-full bg-gray-600  text-white shadow-lg rounded-lg dark:bg-gray-900 dark:text-gray-300 transition-colors duration-300">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center">
+    <div className="flex justify-center items-center min-h-screen  p-6">
+      <Card className="max-w-3xl w-full bg-gray-700 text-white shadow-2xl rounded-xl overflow-hidden">
+        <CardHeader className="bg-gray-700 p-6 text-center">
+          <CardTitle className="text-4xl font-bold text-gray-100">
             {book.title}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col md:flex-row items-center gap-6">
+        <CardContent className="p-6 space-y-6">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <img
-              src={book.image}
+              src={book.image_url}
               alt={book.title}
-              className="w-40 h-60 object-cover rounded-md"
+              className="w-44 h-64 object-cover rounded-lg shadow-md transition-transform duration-300 hover:scale-105"
             />
-            <div>
-              <p className="text-lg text-gray-400">
-                <span className="font-semibold">Author:</span> {book.author}
+            <div className="space-y-3 text-gray-300">
+              <p className="text-lg">
+                <span className="font-semibold text-gray-100">Author:</span>{" "}
+                {book.author}
               </p>
-              <p className="text-lg text-gray-400">
-                <span className="font-semibold">Category:</span> {book.category}
+              <p className="text-lg">
+                <span className="font-semibold text-gray-100">Category:</span>{" "}
+                {book.category}
               </p>
             </div>
           </div>
-          <p className="text-gray-300">{book.description}</p>
+          <p className="text-gray-300 leading-relaxed border-l-4 border-blue-500 pl-4 italic">
+            {book.description}
+          </p>
           {user ? (
             <div className="text-center">
-              <Button variant="default" className="w-full">
-                Add Reservation
+              <Button variant="default" onClick={() => handleSubmit(book.id)}>
+                {createLoading ? "Loading..." : "Add Reservation"}
               </Button>
             </div>
           ) : (
-            <p className="text-center text-gray-300 font-purple-purse dark:text-gray-100 mt-10">
+            <p className="text-center text-gray-300 mt-6 flex items-center justify-center gap-2">
               Please log in to add a reservation.
+              <Link to="/login" varient="default">
+                Login
+              </Link>
             </p>
           )}
         </CardContent>

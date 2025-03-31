@@ -55,7 +55,7 @@ export const useUserStore = create((set, get) => ({
         email,
         password,
       });
-      set({ user: res.data, loading: false });
+      set({ user: res.data.user, loading: false });
       toast.success("Login successful");
       setTimeout(() => {
         navigate("/");

@@ -12,6 +12,17 @@ export const createReservations = async (req, res, next) => {
       return next(errorHandler(400, "User ID and Book ID are required"));
     }
 
+    const existingReservation = await db.query(
+      "SELECT * FROM reservations WHERE user_id = ? AND book_id = ? AND status IN ('pending', 'borrowed')",
+      [userId, book_id]
+    );
+
+    if (existingReservation[0].length > 0) {
+      return next(
+        errorHandler(400, "You already have a reservation for this book")
+      );
+    }
+
     const query = `
           INSERT INTO reservations (user_id, book_id, reservation_date, status) 
           VALUES (?, ?, CURDATE(), 'pending')
@@ -25,6 +36,7 @@ export const createReservations = async (req, res, next) => {
     );
 
     res.status(201).json({
+      message: "Reservation created successfully",
       reservation: createdReservation[0],
     });
   } catch (error) {

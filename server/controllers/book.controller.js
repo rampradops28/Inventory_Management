@@ -76,7 +76,6 @@ export const getBookById = async (req, res, next) => {
     }
 
     res.status(200).json({
-      success: true,
       book: books[0],
     });
   } catch (error) {

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useBookStore } from "@/stores/useBookStore";
+import LoadingSpinner from "@/components/LoadingScreen";
 
 function BookCategory() {
   const { books, loading, getCategoryBooks, searchBooks } = useBookStore();
@@ -38,6 +39,8 @@ function BookCategory() {
   const handleBookClick = (bookId) => {
     navigate(`/book/${bookId}`);
   };
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="p-6 bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen m-10 p-10 rounded-2xl shadow-lg">
