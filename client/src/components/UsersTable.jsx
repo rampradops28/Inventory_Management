@@ -10,14 +10,20 @@ import { useEffect } from "react";
 import { useAdminStore } from "@/stores/useAdminStore";
 
 function UsersTable({}) {
-  const { getAllUsers, users, loading } = useAdminStore();
+  const { getAllUsers, users } = useAdminStore();
 
   useEffect(() => {
     getAllUsers();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (!users || users.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-600 dark:text-gray-300 text-lg">
+          No users found
+        </p>
+      </div>
+    );
   }
   return (
     <div className="mt-10">

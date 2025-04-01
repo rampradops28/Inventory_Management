@@ -9,10 +9,20 @@ import {
 } from "@/components/ui/card";
 import { useBookStore } from "@/stores/useBookStore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "react-router-dom";
 
-const BookCard = ({ title, author, cover }) => {
+const BookCard = ({ title, author, cover, bookId }) => {
+  const navigate = useNavigate();
+
+  const handleClick = (id) => {
+    navigate(`/book/${id}`);
+  };
+
   return (
-    <Card className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-colors duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 hover:scale-105 hover:transition-transform">
+    <Card
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-colors duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 hover:scale-105 hover:transition-transform"
+      onClick={() => handleClick(bookId)}
+    >
       <CardHeader>
         <CardTitle className="text-gray-900 dark:text-white">{title}</CardTitle>
       </CardHeader>
@@ -116,6 +126,7 @@ const PopularBooks = () => {
             title={book.title}
             author={book.author}
             cover={book.image_url}
+            bookId={book.id}
           />
         ))}
       </div>

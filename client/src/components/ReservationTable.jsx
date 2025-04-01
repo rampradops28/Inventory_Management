@@ -65,6 +65,16 @@ function ReservationTable() {
     { value: "completed", label: "Completed" },
   ];
 
+  if (!reservations || reservations.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-600 dark:text-gray-300 text-lg">
+          No reservations found
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-10">
       <div className="flex space-x-2 mb-4">

@@ -169,6 +169,21 @@ export const useUserStore = create((set, get) => ({
       toast.error(error.response?.data?.message || "An error occurred");
     }
   },
+
+  refreshToken: async () => {
+    // Prevent multiple simultaneous refresh attempts
+    if (get().checkingAuth) return;
+
+    set({ checkingAuth: true });
+    try {
+      const response = await axiosInstance.post("/auth/refresh-token");
+      set({ checkingAuth: false });
+      return response.data;
+    } catch (error) {
+      set({ user: null, checkingAuth: false });
+      throw error;
+    }
+  },
 }));
 
 let refreshPromise = null;

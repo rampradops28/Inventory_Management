@@ -21,8 +21,14 @@ function BooksTable() {
     getAllBooks();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (!books || books.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-600 dark:text-gray-300 text-lg">
+          No Books found
+        </p>
+      </div>
+    );
   }
 
   const handleUpdate = async (book) => {
