@@ -8,7 +8,7 @@ import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
 function GoogleOAuth() {
   const navigate = useNavigate();
   const auth = getAuth(app);
-  const { google, loading } = useUserStore();
+  const { google, googleLoading } = useUserStore();
 
   const handleSubmit = async () => {
     try {
@@ -34,7 +34,7 @@ function GoogleOAuth() {
         width="20"
         className="h-5 w-5"
       />
-      <span>{loading ? "Loading..." : "Sign in with Google"}</span>
+      <span>{googleLoading ? "Loading..." : "Sign in with Google"}</span>
     </Button>
   );
 }

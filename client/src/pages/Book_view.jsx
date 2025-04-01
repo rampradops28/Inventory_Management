@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/stores/useUserStore";
 import { useBookStore } from "@/stores/useBookStore";
-import LoadingSpinner from "@/components/LoadingScreen";
 import { useReservationStore } from "@/stores/useReservation";
 
 function BookView() {
@@ -20,8 +19,6 @@ function BookView() {
   const handleSubmit = async (id) => {
     await createReservation(id);
   };
-
-  if (loading) return <LoadingSpinner />;
 
   if (!book) {
     return (

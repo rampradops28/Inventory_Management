@@ -5,6 +5,7 @@ import axiosInstance from "../lib/axios";
 export const useUserStore = create((set, get) => ({
   user: null,
   loading: false,
+  googleLoading: false,
   checkingAuth: true,
 
   signup: async (email, password, navigate) => {
@@ -131,20 +132,20 @@ export const useUserStore = create((set, get) => ({
   },
 
   google: async (email, name, imageUrl, navigate) => {
-    set({ loading: true });
+    set({ googleLoading: true });
     try {
       const res = await axiosInstance.post("/auth/google-oauth", {
         email,
         name,
         imageUrl,
       });
-      set({ user: res.data.user, loading: false });
+      set({ user: res.data.user, googleLoading: false });
       toast.success("Login successful");
       setTimeout(() => {
         navigate("/");
       }, 2000);
     } catch (error) {
-      set({ loading: false });
+      set({ googleLoading: false });
       console.log("error in google login", error);
       toast.error(error.response?.data?.message || "An error occurred");
     }

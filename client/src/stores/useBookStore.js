@@ -18,7 +18,7 @@ export const useBookStore = create((set, get) => ({
       console.log(error);
       set({ loading: false });
       toast.error(error.response?.data?.message || "An error occurred");
-      console.log("error occurred in get all books for admin", error.response);
+      console.log("error occurred in get all books ", error.response);
     }
   },
 
