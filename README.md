@@ -1,8 +1,8 @@
-cd# Library Management System (MERN Stack)
+cd# Library Management System 
 
 ## 📌 Project Overview
 
-## The **Library Management System** is a full-stack web application built using the **MERN stack (MongoDB, Express.js, React, Node.js)**. It enables library admins to manage books and users to search boooks according to their interests
+## The **Library Management System** is a full-stack web application built using the **Express.js, React, Node.js and MySql as Database**. It enables library admins to manage books and their inventory and users to search boooks according to their interests and make reservations for them.
 
 ## 🏗️ Project Structure
 
@@ -14,16 +14,18 @@ cd# Library Management System (MERN Stack)
 ```
 
 - **client/** → React frontend (Vite)
-- **server/** → Node.js backend with Express.js & MongoDB
+- **server/** → Node.js backend with Express.js & MySql
 
 ---
 
 ## 🚀 Features
 
-- **User Authentication** (JWT-based login, signup)
+- **User Authentication** (JWT-based login, signup, verify email, Google OAuth support)
 - **Role-Based Access Control** (Admin & Member)
-- **Book Management** (Add, update, delete books, search by title, author & category)
-- **Email Notifications** (Mailtrap API for welcome emails notifications)
+- **Book Management** (Add, update, delete books for admins, search books by title, author & category for users)
+- **Reservation Management** (users can create reservations for books, admins can update and manage those reservation status along with add fines if reservations are overdue)
+- **Reportings** (admins can get a report of books that are borrowed from the library)
+- **Email Notifications** (Mailtrap API for welcome emails, forget password and password reset success notifications)
 - **Redis Integration** (Used for refresh token caching management)
 
 ---
@@ -41,7 +43,7 @@ cd# Library Management System (MERN Stack)
 ### **Backend (Server)**
 
 - Node.js with Express.js
-- MongoDB with Mongoose (NoSQL database)
+- Mysql Database
 - JWT Authentication (Access & refresh tokens)
 - Mailtrap (Email notifications)
 - Redis (Token caching)
@@ -94,28 +96,14 @@ COULDINARY_CLOUD_NAME = your cloudinary cloud name
 CLOUDINARY_API_KEY = cloudinary api key
 CLOUDINARY_API_SECRET = cloudinary api secret
 
-```
 
----
 
-## 📬 API Routes
+Create a another  `.env` file inside the *client/** directory and add the following values:
 
-### **Authentication Routes**
+```env
+VITE_FIREBASE_API_KEY = your firebase project api
+VITE_FIREBASE_AUTH_DOMAIN = your firebase project auth domain
 
-| Method | Endpoint                    | Description                   |
-| ------ | --------------------------- | ----------------------------- |
-| POST   | `/api/auth/signup`          | Register a new user           |
-| POST   | `/api/auth/login`           | Login user & get tokens       |
-| POST   | `/api/auth/refresh-token`   | Get new access token          |
-| POST   | `/api/auth/forget-password` | get password reset email      |
-| POST   | `/api/auth/reset-password`  | reset password                |
-| POST   | `/api/auth/verify-email`    | verify the email after signup |
 
-### **Book Routes**
 
-| Method | Endpoint         | Description                      |
-| ------ | ---------------- | -------------------------------- |
-| POST   | `/api/books/`    | Create a new book                |
-| DELETE | `/api/books/:id` | Delete a book                    |
-| PUT    | `/api/books/:id` | Update a book                    |
-| GET    | `/api/books/`    | Get Books (Search and Filtering) |
+
