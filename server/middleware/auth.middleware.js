@@ -1,49 +1,54 @@
 import jwt from "jsonwebtoken";
-import { errorHandler } from "../utils/errorHandler.js";
-import dotenv from "dotenv";
 import db from "../lib/db.js";
-
-dotenv.config();
+import { errorHandler } from "../utils/errorHandler.js";
 
 export const protectedRoute = async (req, res, next) => {
   try {
-    const accessToken = req.cookies.accessToken;
-    if (!accessToken) {
-      return next(errorHandler(401, "Unauthorized - No Access Token Provided"));
-    }
+    const raw = req.headers.authorization || "";
+    const token = raw.startsWith("Bearer ") ? raw.split(" ")[1] : req.cookies?.accessToken;
+    if (!token) return next(errorHandler(401, "No token provided"));
 
+    let payload;
     try {
-      const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-
-      const [results] = await db.query(
-        "SELECT id, role FROM users WHERE id = ?",
-        [decoded.user_id]
-      );
-
-      if (results.length === 0) {
-        return next(errorHandler(404, "User not found"));
-      }
-
-      req.user = results[0];
-      console.log("req.user:", req.user);
-      next();
-    } catch (error) {
-      if (error.name === "TokenExpiredError") {
-        return next(errorHandler(401, "Unauthorized - Token Expired"));
-      }
-      throw error;
+      payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    } catch (e) {
+      return next(errorHandler(401, "Invalid or expired token"));
     }
-  } catch (error) {
-    console.error("Error in protectedRoute:", error);
-    return next(errorHandler(401, "Invalid Access Token"));
+
+    // load fresh user from DB (to get up-to-date role/base/is_active)
+    const [rows] = await db.query(
+      `SELECT u.id, u.email, u.name, u.role_id, r.name AS role, u.base_id, u.is_active
+       FROM users u JOIN roles r ON r.id = u.role_id WHERE u.id = ?`,
+      [payload.id]
+    );
+
+    if (rows.length === 0 || rows[0].is_active === 0) {
+      return next(errorHandler(401, "User not found or inactive"));
+    }
+
+    req.user = rows[0]; // {id, email, name, role_id, role, base_id}
+    next();
+  } catch (err) {
+    next(err);
   }
 };
 
-export const adminRoute = (req, res, next) => {
-  console.log("User:", req.user);
-  if (req.user && req.user.role === "admin") {
+export const authorizeRoles = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) return next(errorHandler(401, "Unauthorized"));
+    if (!allowedRoles.includes(req.user.role)) return next(errorHandler(403, "Access denied"));
     next();
-  } else {
-    return next(errorHandler(401, "Unauthorized - Not an Admin"));
-  }
+  };
+};
+
+// Ensure action is happening within same base (non-Admin)
+export const scopeToBase = (extractBaseId) => {
+  return (req, res, next) => {
+    if (!req.user) return next(errorHandler(401, "Unauthorized"));
+    if (req.user.role === "Admin") return next();
+    const targetBaseId = Number(extractBaseId(req));
+    if (!targetBaseId) return next(errorHandler(400, "Base context required"));
+    if (Number(req.user.base_id) !== targetBaseId) return next(errorHandler(403, "Access denied: base mismatch"));
+    next();
+  };
 };

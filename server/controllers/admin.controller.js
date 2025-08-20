@@ -1,15 +1,12 @@
-import { errorHandler } from "../utils/errorHandler.js";
 import db from "../lib/db.js";
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    const [users] = await db.query(
-      "SELECT id,name,email,contact,address, created_at, image_url FROM users WHERE role = 'member'"
+    const [rows] = await db.query(
+      `SELECT u.id, u.name, u.email, r.name AS role, b.name AS base, u.created_at, u.is_verified, u.is_active
+       FROM users u JOIN roles r ON r.id = u.role_id JOIN bases b ON b.id = u.base_id
+       ORDER BY u.created_at DESC`
     );
-
-    res.status(200).json({ users });
-  } catch (error) {
-    console.log("error in getting users for admin", error);
-    next(errorHandler(500, "An error occurred"));
-  }
+    res.json(rows);
+  } catch (err) { next(err); }
 };

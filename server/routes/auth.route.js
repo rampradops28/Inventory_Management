@@ -1,22 +1,14 @@
 import express from "express";
 import {
-  register,
-  verifyEmail,
-  login,
-  logout,
-  refreshToken,
-  forgotPassword,
-  resetPassword,
-  getProfile,
-  googleOAuth,
-  updateProfile,
+  register, verifyEmail, login, logout, refreshToken,
+  forgotPassword, resetPassword, getProfile, updateProfile
 } from "../controllers/auth.controller.js";
 import { protectedRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
 router.post("/signup", register);
-router.post("/google-oauth", googleOAuth);
+// router.post("/google-oauth", googleOAuth);
 router.post("/verify-email", verifyEmail);
 router.post("/login", login);
 router.post("/logout", logout);
