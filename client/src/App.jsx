@@ -1,156 +1,70 @@
-import React, { useEffect } from "react";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  useLocation,
-  Navigate,
-  Link,
-} from "react-router-dom";
-import { ThemeProvider } from "./components/ui/theme-provider";
-import { Toaster } from "react-hot-toast";
-import { useUserStore } from "./stores/useUserStore";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "./components/ui/button";
-
-// pages import
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import ForgetPassword from "./pages/Forget_password";
-import ResetPassword from "./pages/Reset_password";
-import VerifyEmail from "./pages/Verify_email";
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
-import Contact from "./pages/Contact";
-import About from "./pages/About";
-import BookDetails from "./pages/Book_details";
-import BookCategory from "./pages/Book_category";
-import BookView from "./pages/Book_view";
-
-// app components
+import React from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import LoadingScreen from "./components/LoadingScreen";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import Dashboard from "./pages/Dashboard";
+import Assets from "./pages/Assets";
+import Purchases from "./pages/Purchases";
+import Transfers from "./pages/Transfers";
+import Assignments from "./pages/Assignments";
+import RoleRequest from "./pages/RoleRequest";
+import AdminUsers from "./pages/AdminUsers";
+import AdminRBAC from "./pages/AdminRBAC";
+import CommanderPanel from "./pages/CommanderPanel";
+import LogisticsPanel from "./pages/LogisticsPanel";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
-  const { checkAuth, checkingAuth } = useUserStore();
-
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
-  if (checkingAuth) {
-    return <LoadingScreen />;
-  }
-
+// ✅ Hide Navbar on login / forgot / reset pages
+function Layout({ children }) {
+  const location = useLocation();
+  const hideNavbar = ["/login", "/forgot-password", "/reset-password","/register"].includes(location.pathname);
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
-      <Toaster />
-    </ThemeProvider>
+    <>
+      {!hideNavbar && <Navbar />}
+      <div className="container mt-4">{children}</div>
+    </>
   );
 }
 
-function AppContent() {
-  const location = useLocation();
-  const { user } = useUserStore();
-
-  const hideNavbarFooterRoutes = [
-    "/verify-email",
-    "/login",
-    "/signup",
-    "/forget-password",
-    "/reset-password",
-    "/dashboard",
-  ];
-
-  const shouldHideNavbarFooter = hideNavbarFooterRoutes.some(
-    (route) =>
-      route === location.pathname ||
-      (route.includes(":") && location.pathname.startsWith(route.split(":")[0]))
-  );
-
+function App() {
   return (
-    <div className="flex flex-col min-h-screen dark:bg-gray-800 transition-colors duration-300">
-      {!shouldHideNavbarFooter && <Navbar />}
-      <main className="flex-grow">
-        {user?.is_verified === 0 && location.pathname !== "/verify-email" && (
-          <div className="max-w-screen-lg mx-auto my-4">
-            <Alert>
-              <AlertTitle>Email Verification Required</AlertTitle>
-              <AlertDescription>
-                Please verify your email to access all features. Check your
-                inbox for the verification email.
-                <Link to={"/verify-email"} className="mt-5">
-                  <Button>Verify</Button>
-                </Link>
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
-        <Routes>
-          {/* Authentication Routes */}
-          <Route
-            path="/login"
-            element={!user ? <Login /> : <Navigate to="/" replace />}
-          />
-          <Route
-            path="/signup"
-            element={!user ? <SignUp /> : <Navigate to="/" replace />}
-          />
-          <Route
-            path="/forget-password"
-            element={!user ? <ForgetPassword /> : <Navigate to="/" replace />}
-          />
-          <Route
-            path="/reset-password/:token"
-            element={!user ? <ResetPassword /> : <Navigate to="/" replace />}
-          />
+    <Layout>
+      <Routes>
+        {/* Redirect root to dashboard if logged in */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/book-details" element={<BookDetails />} />
-          <Route
-            path="/book-category/:categoryName"
-            element={<BookCategory />}
-          />
-          <Route path="/book/:bookId" element={<BookView />} />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              user?.role === "admin" ? (
-                <Dashboard />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/profile"
-            element={user ? <Profile /> : <Navigate to="/login" replace />}
-          />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-          {/* 404 Route */}
-          <Route
-            path="*"
-            element={
-              <h1 className="text-center text-2xl text-red-500">
-                404 - Page Not Found
-              </h1>
-            }
-          />
-        </Routes>
-      </main>
-      {!shouldHideNavbarFooter && <Footer />}
-    </div>
+        {/* Protected Routes */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/assets" element={<ProtectedRoute><Assets /></ProtectedRoute>} />
+        <Route path="/purchases" element={<ProtectedRoute><Purchases /></ProtectedRoute>} />
+        <Route path="/transfers" element={<ProtectedRoute><Transfers /></ProtectedRoute>} />
+        <Route path="/assignments" element={<ProtectedRoute><Assignments /></ProtectedRoute>} />
+        <Route path="/role-request" element={<ProtectedRoute><RoleRequest /></ProtectedRoute>} />
+
+        {/* Admin-only Routes */}
+        <Route path="/admin/users" element={<ProtectedRoute allowedRoles={["Admin"]}><AdminUsers /></ProtectedRoute>} />
+        <Route path="/admin/rbac" element={<ProtectedRoute allowedRoles={["Admin"]}><AdminRBAC /></ProtectedRoute>} />
+
+        {/* Commander-only Routes */}
+        <Route path="/commander" element={<ProtectedRoute allowedRoles={["Commander"]}><CommanderPanel /></ProtectedRoute>} />
+
+        {/* Logistics-only Routes */}
+        <Route path="/logistics" element={<ProtectedRoute allowedRoles={["LogisticsOfficer"]}><LogisticsPanel /></ProtectedRoute>} />
+
+        {/* Fallback */}
+        <Route path="*" element={<div className="container mt-5"><h3>404 - Page not found</h3></div>} />
+      </Routes>
+    </Layout>
   );
 }
 

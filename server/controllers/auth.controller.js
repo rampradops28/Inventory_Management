@@ -54,24 +54,24 @@ export const register = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-export const verifyEmail = async (req, res, next) => {
-  try {
-    const { code } = req.body;
-    if (!code) return next(errorHandler(400, "Verification code required"));
+// export const verifyEmail = async (req, res, next) => {
+//   try {
+//     const { code } = req.body;
+//     if (!code) return next(errorHandler(400, "Verification code required"));
 
-    const [rows] = await db.query("SELECT id FROM users WHERE verification_token = ? AND verification_token_expires_at > NOW()", [code]);
-    if (rows.length === 0) return next(errorHandler(400, "Invalid or expired code"));
+//     const [rows] = await db.query("SELECT id FROM users WHERE verification_token = ? AND verification_token_expires_at > NOW()", [code]);
+//     if (rows.length === 0) return next(errorHandler(400, "Invalid or expired code"));
 
-    await db.query("UPDATE users SET is_verified=1, verification_token=NULL, verification_token_expires_at=NULL WHERE id=?", [rows[0].id]);
+//     await db.query("UPDATE users SET is_verified=1, verification_token=NULL, verification_token_expires_at=NULL WHERE id=?", [rows[0].id]);
 
-    const [[user]] = await db.query(
-      `SELECT u.id, u.email, u.name, r.name AS role, u.base_id, u.is_verified FROM users u JOIN roles r ON r.id=u.role_id WHERE u.id = ?`,
-      [rows[0].id]
-    );
+//     const [[user]] = await db.query(
+//       `SELECT u.id, u.email, u.name, r.name AS role, u.base_id, u.is_verified FROM users u JOIN roles r ON r.id=u.role_id WHERE u.id = ?`,
+//       [rows[0].id]
+//     );
 
-    return res.json({ message: "Email verified", user });
-  } catch (err) { next(err); }
-};
+//     return res.json({ message: "Email verified", user });
+//   } catch (err) { next(err); }
+// };
 
 export const login = async (req, res, next) => {
   try {
@@ -87,7 +87,7 @@ export const login = async (req, res, next) => {
     const user = rows[0];
     const ok = await bcrypt.compare(password, user.password_hash);
     if (!ok) return next(errorHandler(400, "Invalid credentials"));
-    if (!user.is_verified) return next(errorHandler(403, "Email not verified"));
+    // if (!user.is_verified) return next(errorHandler(403, "Email not verified"));
     if (user.is_active === 0) return next(errorHandler(403, "Account inactive"));
 
     const { accessToken, refreshToken } = signTokens(user);

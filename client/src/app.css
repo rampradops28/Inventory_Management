@@ -1,0 +1,5 @@
+body { background: #f4f6f8; font-family: "Segoe UI", Roboto, sans-serif; }
+.navbar-brand { color: #f6c85f !important; font-weight: 600; }
+.card { border-radius: 6px; }
+.btn-primary { background-color: #2f4858; border-color: #2f4858; }
+.table th, .table td { vertical-align: middle; }
